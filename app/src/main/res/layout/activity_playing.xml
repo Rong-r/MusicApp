@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+    <RelativeLayout
+        android:id="@+id/layout_playing_top"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true">
+        <ImageView
+            android:id="@+id/iv_playing_back"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/back"
+            android:alpha="0.5"/>
+        <TextView
+            android:id="@+id/tv_playing_song_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/iv_playing_back"
+            android:layout_marginLeft="10dp"
+            android:text="这里是歌名"
+            android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/tv_playing_singer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_playing_song_title"
+            android:layout_toRightOf="@+id/iv_playing_back"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="这里是歌手名字"
+            android:alpha="0.7"/>
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/layout_love_collect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_above="@+id/layout_progressbar"
+        android:layout_marginBottom="10dp">
+        <ImageView
+            android:id="@+id/iv_playing_love"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/playing_love" />
+        <ImageView
+            android:id="@+id/iv_playing_collect"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/playing_collect" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_progressbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_above="@+id/layout_playing_bottom">
+        <TextView
+            android:id="@+id/music_duration_played"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:singleLine="true"
+            android:text="00:00"
+            android:textColor="@color/bt_color"
+            android:textSize="10sp" />
+
+        <!--进度条-->
+
+
+        <TextView
+            android:id="@+id/music_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="00:00"
+            android:textColor="@color/bt_color"
+            android:textSize="10sp" />
+    </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/layout_playing_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp">
+        <ImageView
+            android:id="@+id/iv_playing_last"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/iv_playing"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:src="@drawable/playing_last" />
+        <ImageView
+            android:id="@+id/iv_playing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/to_pause" />
+        <ImageView
+            android:id="@+id/iv_playing_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/iv_playing"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/playing_next" />
+        <ImageView
+            android:id="@+id/iv_playing_list"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/playing_list" />
+    </RelativeLayout>
+
+</RelativeLayout>
