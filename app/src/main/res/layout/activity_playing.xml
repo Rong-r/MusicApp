@@ -121,9 +121,9 @@
             android:src="@drawable/playing_next" />
         <ImageView
             android:id="@+id/iv_playing_list"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginRight="20dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginRight="25dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:src="@drawable/playing_list" />

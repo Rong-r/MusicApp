@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="130dp"
+    android:padding="5dp">
+    <ImageView
+        android:id="@+id/iv_backend_playing_cover"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="10dp" />
+    <TextView
+        android:id="@+id/tv_backend_playing_song_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/iv_backend_playing_cover"
+        android:layout_margin="10dp"
+        android:text="歌名"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_backend_playing_song_title"
+        android:layout_toRightOf="@+id/iv_backend_playing_cover"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_vertical"
+        android:layout_margin="10dp">
+        <ImageView
+            android:id="@+id/iv_backend_playing_last"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="30dp"
+            android:src="@drawable/playing_last" />
+        <ImageView
+            android:id="@+id/iv_backend_playing_play"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/to_play"/>
+        <ImageView
+            android:id="@+id/iv_backend_playing_next"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/playing_next"
+            android:layout_marginLeft="30dp"/>
+    </LinearLayout>
+</RelativeLayout>
