@@ -13,34 +13,34 @@
         android:src="@drawable/welcome"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"/>
-
     <LinearLayout
-        android:id="@+id/layout_user_id"
+        android:id="@+id/layout_user_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:layout_below="@+id/iv_login_welcome"
         android:padding="10dp">
         <TextView
-            android:id="@+id/tv_user_id"
+            android:id="@+id/tv_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="用户名"
             android:textSize="18sp" />
         <EditText
-            android:id="@+id/et_user_id"
+            android:id="@+id/et_user_name"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="25dp"
             android:background="@drawable/login_edit_text_shape"
-            android:singleLine="true" />
+            android:singleLine="true"
+            />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_user_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:layout_below="@+id/layout_user_id"
+        android:layout_below="@+id/layout_user_name"
         android:padding="10dp">
         <TextView
             android:id="@+id/tv_password"
@@ -54,7 +54,8 @@
             android:layout_height="50dp"
             android:layout_marginLeft="25dp"
             android:background="@drawable/login_edit_text_shape"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:inputType="textPassword"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_remember_password"
@@ -85,16 +86,38 @@
         android:gravity="center_vertical"
         android:paddingLeft="10dp">
         <RadioButton
+            android:id="@+id/rb_login_agree"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/tv_login_agree"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="已阅读并同意《用户协议》和《隐私政策》"
+            android:text="已阅读并同意"
             android:textColor="#4D000000"
             android:textSize="16sp"
             android:layout_marginLeft="5dp"/>
+        <TextView
+            android:id="@+id/tv_login_agree_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="《用户协议》"
+            android:textColor="@color/agree_blue"
+            android:textSize="16sp"/>
+        <TextView
+            android:id="@+id/tv_login_agree_with"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="和"
+            android:textColor="#4D000000"
+            android:textSize="16sp"/>
+        <TextView
+            android:id="@+id/tv_login_agree_privacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="《隐私协议》"
+            android:textColor="@color/agree_blue"
+            android:textSize="16sp"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_enroll_login"

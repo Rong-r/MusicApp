@@ -68,7 +68,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    //androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     //debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
@@ -77,19 +77,7 @@ dependencies {
     implementation("org.greenrobot:eventbus:3.3.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation ("com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.6")
-    implementation("com.github.bumptech.glide:glide:4.7.1")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.7.1")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation ("com.google.code.gson:gson:2.10.1")
-    implementation("com.squareup.retrofit2:retrofit:2.8.1")
-    implementation("com.squareup.retrofit2:converter-gson:2.8.1")
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
-    implementation("com.github.anrwatchdog:anrwatchdog:1.4.0")
-    implementation("androidx.lifecycle:lifecycle-extensions:2.0.0")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0")
 
-    implementation("com.squareup.picasso:picasso:2.71828")
-    implementation("de.hdodenhof:circleimageview:3.1.0")
-    implementation("com.github.SheHuan:NiceImageView:1.0.5")
 
 }
