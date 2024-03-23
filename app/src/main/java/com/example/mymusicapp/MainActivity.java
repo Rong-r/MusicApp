@@ -15,13 +15,16 @@ import androidx.annotation.Nullable;
 public class MainActivity extends Activity {
     //private DrawerLayout drawerLayout;
     private ImageView imageView;
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
+        databaseHelper.getWritableDatabase();
+        //setContentView(R.layout.activity_main);
         //drawerLayout=(DrawerLayout) findViewById(R.id.layout_main);
-        imageView=(ImageView) findViewById(R.id.iv_user_info);
+        //imageView=(ImageView) findViewById(R.id.iv_user_info);
 /*
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
