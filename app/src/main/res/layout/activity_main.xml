@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_main"
+    tools:openDrawer="start"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -17,14 +19,14 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/layout_search"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/fragment_container_home"/>
+            app:layout_constraintBottom_toTopOf="@+id/swipe_refresh_layout_home_list"/>
         <FrameLayout
             android:id="@+id/layout_search"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_margin="10dp"
             android:background="@drawable/login_edit_text_shape"
-            app:layout_constraintBottom_toTopOf="@+id/fragment_container_home"
+            app:layout_constraintBottom_toTopOf="@+id/swipe_refresh_layout_home_list"
             app:layout_constraintLeft_toRightOf="@+id/iv_user_info"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -36,7 +38,7 @@
                 android:layout_marginStart="10dp"
                 android:src="@drawable/search" />
             <EditText
-                android:id="@+id/et_search"
+                android:id="@+id/et_main_search"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40dp"
@@ -48,31 +50,108 @@
                 android:textColor="#73000000"
                 android:background="@android:color/transparent"/>
         </FrameLayout>
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container_home"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@+id/layout_search"
-            app:layout_constraintBottom_toTopOf="@+id/fragment_container_home_bottom"
+            app:layout_constraintBottom_toTopOf="@+id/include_home_bottom"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container_home_bottom"
+            app:layout_constraintRight_toRightOf="parent"
+            android:id="@+id/swipe_refresh_layout_home_list">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView_home_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
+                app:spanCount="1"/>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <include
+            android:id="@+id/include_home_bottom"
             android:layout_width="match_parent"
-            android:layout_height="90dp"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_container_home"
+            android:layout_height="70dp"
+            layout="@layout/fragment_bottom_playing"
+            app:layout_constraintTop_toBottomOf="@+id/swipe_refresh_layout_home_list"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:layout_width="300dp"
         android:layout_height="match_parent"
-        android:gravity="start"
-        android:text="菜单"
-        android:textSize="30sp"
-        android:background="#FFF"/>
+        android:layout_gravity="start"
+        android:background="@color/background">
+        <LinearLayout
+            android:id="@+id/layout_user_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="30dp"
+            android:background="@color/background_dark">
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/iv_user"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/user_icon_example"/>
+            <TextView
+                android:id="@+id/tv_user_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="这里是用户名"
+                android:layout_marginLeft="20dp"
+                android:layout_gravity="center_vertical"
+                android:textSize="16dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/layout_user_loved"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layout_user_info"
+            android:padding="10dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/playing_love"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="我的喜欢"
+                android:layout_gravity="center_vertical"
+                android:textSize="16dp"/>
+        </LinearLayout>
+        <View
+            android:id="@+id/line_below_user_loved"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33000000"
+            android:layout_alignBottom="@+id/layout_user_loved"/>
+        <LinearLayout
+            android:id="@+id/layout_uer_collected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/line_below_user_loved"
+            android:padding="10dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/playing_collect"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="我的收藏"
+                android:layout_gravity="center_vertical"
+                android:textSize="16dp"/>
+        </LinearLayout>
+        <View
+            android:id="@+id/line_below_user_collected"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#33000000"
+            android:layout_alignBottom="@+id/layout_uer_collected"/>
+    </RelativeLayout>
 
-</android.support.v4.widget.DrawerLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

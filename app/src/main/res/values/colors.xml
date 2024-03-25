@@ -11,4 +11,5 @@
     <color name="bt_color">#508d52</color>
     <color name="unpicked">#cde1aa</color>
     <color name="agree_blue">#0288D1</color>
+    <color name="background_dark">#c2db99</color>
 </resources>

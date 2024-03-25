@@ -1,63 +1,55 @@
 package com.example.mymusicapp;
 
-import android.app.Activity;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-//import android.support.v4.view.GravityCompat;
-//import android.support.v4.widget.DrawerLayout;
-import android.os.Environment;
-import android.view.MenuItem;
+
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import java.io.File;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    //private DrawerLayout drawerLayout;
+    private DrawerLayout drawerLayout;
     private ImageView imageView;
     private EditText editTextSearch;
     private ImageView imageViewPlay;
     private DatabaseHelper databaseHelper;
+    private RecyclerView recyclerViewList;
+    private List<String> musicsPathsList;
     private MediaPlayer mediaPlayer=new MediaPlayer();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        editTextSearch=(EditText)findViewById(R.id.et_search);
-        imageViewPlay=(ImageView)findViewById(R.id.iv_bottom_playing_play);
+        setContentView(R.layout.activity_main);
         databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
-        //setContentView(R.layout.activity_main);
-        //drawerLayout=(DrawerLayout) findViewById(R.id.layout_main);
-        //imageView=(ImageView) findViewById(R.id.iv_user_info);
-/*
+        editTextSearch=(EditText)findViewById(R.id.et_main_search);
+        imageViewPlay=(ImageView)findViewById(R.id.iv_bottom_playing_play);
+        recyclerViewList=(RecyclerView)findViewById(R.id.recyclerView_home_list);
+        musicsPathsList=databaseHelper.getStoredMusicPath();
+        recyclerViewList.setAdapter(new HomeAdapter(this,musicsPathsList));
+        drawerLayout=(DrawerLayout) findViewById(R.id.layout_main);
+        imageView=(ImageView) findViewById(R.id.iv_user_info);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
- */
-
-        //动态申请权限
-        if(ContextCompat.checkSelfPermission(MainActivity.this,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(MainActivity.this,new String[]{
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-        }else {
-            databaseHelper.initSongsDB(this);
-        }
+        permission();
         editTextSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -88,21 +80,27 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
-    public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults) {
+    private void permission(){
+        if(checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO)!= PackageManager.PERMISSION_GRANTED||
+                checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES)!= PackageManager.PERMISSION_GRANTED||
+                checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO)!= PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,Manifest.permission.READ_MEDIA_VIDEO},200);
+        }else {
+            Toast.makeText(this,"SD权限已被授予",Toast.LENGTH_SHORT).show();
+            databaseHelper.initSongsDB(this);
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    databaseHelper.initSongsDB(this);
-                } else {
-                    Toast.makeText(this, "拒绝权限将无法使用程序", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
-            default:
-                break;
+        if(requestCode==200){
+            if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this,"SD权限申请成功",Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(this,"SD权限申请被拒绝",Toast.LENGTH_SHORT).show();
+            }
         }
     }
     @Override

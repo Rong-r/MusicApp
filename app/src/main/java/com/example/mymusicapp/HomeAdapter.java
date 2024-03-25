@@ -3,25 +3,24 @@ package com.example.mymusicapp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.File;
 import java.util.List;
 
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeViewHolder> {
-    private Context context;
-    private List<File> MusicsListInDB;
-    DatabaseHelper helper = new DatabaseHelper(context,"SongsApp.db",null,1);
-
-
+    private Context mContext;
+    private List<String> MusicsPathsListInDB;
+    public HomeAdapter(Context context,List<String> musicPaths){
+        mContext=context;
+        MusicsPathsListInDB=musicPaths;
+    }
+    DatabaseHelper helper = new DatabaseHelper(mContext,"SongsApp.db",null,1);
     @NonNull
     @Override
     public HomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -32,8 +31,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull HomeViewHolder holder, @SuppressLint("RecyclerView") int position) {
-     /*   holder.textViewTitle.setText();
-        holder.textViewSinger.setText();
+        String musicPath=MusicsPathsListInDB.get(position);
+        holder.textViewTitle.setText(helper.getTitle(musicPath));
+        holder.textViewSinger.setText(helper.getSinger(musicPath));
+        holder.imageViewCover.setImageBitmap(helper.getCover(musicPath));
 
         holder.imageViewCover.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,18 +45,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeViewHolder> {
             }
         });
 
-      */
-
-
     }
-
     @Override
     public int getItemCount() {
-        return MusicsListInDB.size();
-    }
-
-    public HomeAdapter(List<File> musicList){
-        MusicsListInDB=musicList;
+        return MusicsPathsListInDB.size();
     }
 
 

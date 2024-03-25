@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -47,12 +46,7 @@ public class RegisterActivity extends Activity {
                     db.insert("Users",null,values);
                     values.clear();
                     Toast.makeText(RegisterActivity.this,"用户注册成功",Toast.LENGTH_SHORT).show();
-                    Intent intent=new Intent(RegisterActivity.this, LoginActivity.class);
-                    Bundle bundle=new Bundle();
-                    bundle.putString("userName",userName);
-                    bundle.putString("password",password);
-                    intent.putExtras(bundle);
-                    startActivity(intent);
+                    finish();
                 }else{
                     Toast.makeText(RegisterActivity.this,"两次密码不一致",Toast.LENGTH_SHORT).show();
                 }

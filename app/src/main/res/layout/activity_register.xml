@@ -54,7 +54,8 @@
             android:layout_height="50dp"
             android:layout_marginLeft="25dp"
             android:background="@drawable/login_edit_text_shape"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:inputType="textPassword"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_confirm_password"
@@ -75,7 +76,8 @@
             android:layout_height="50dp"
             android:layout_marginLeft="10dp"
             android:background="@drawable/login_edit_text_shape"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:inputType="textPassword"/>
     </LinearLayout>
     <Button
         android:id="@+id/bt_register"
