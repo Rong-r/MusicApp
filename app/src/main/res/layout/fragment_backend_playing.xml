@@ -33,7 +33,8 @@
             android:id="@+id/iv_backend_playing_play"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/to_play"/>
+            android:src="@drawable/playing_to_play"
+            android:tag="toPlay"/>
         <ImageView
             android:id="@+id/iv_backend_playing_next"
             android:layout_width="40dp"

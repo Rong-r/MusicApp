@@ -30,6 +30,8 @@
             android:exported="true"/>
         <activity android:name=".RegisterActivity"
             android:exported="true"/>
+        <activity android:name=".PlayActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>

@@ -36,7 +36,8 @@
         android:layout_height="40dp"
         android:layout_gravity="center_vertical"
         android:layout_margin="10dp"
-        android:src="@drawable/to_play" />
+        android:src="@drawable/playing_to_play"
+        android:tag="toPlay"/>
     <ImageView
         android:id="@+id/iv_bottom_playing_"
         android:layout_width="30dp"
