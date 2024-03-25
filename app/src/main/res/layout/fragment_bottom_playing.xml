@@ -39,7 +39,7 @@
         android:src="@drawable/playing_to_play"
         android:tag="toPlay"/>
     <ImageView
-        android:id="@+id/iv_bottom_playing_"
+        android:id="@+id/iv_bottom_playing_list"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center_vertical"
