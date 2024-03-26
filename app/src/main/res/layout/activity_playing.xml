@@ -41,13 +41,32 @@
         android:background="#33000000"
         android:layout_alignBottom="@+id/layout_playing_top"/>
     <!--封面-->
-    <ImageView
+    <!--
+    //圆形进度条
+    <info.abdolahi.CircularMusicProgressBar
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/album_art"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="130dp"
+        android:src="@drawable/music_icon"
+        app:border_color="@color/bt_color"
+        app:border_width="3dp"
+        app:centercircle_diammterer="1"
+        app:progress_color="#80CBC4"
+        app:progress_startAngle="40"
+        app:draw_anticlockwise="false"
+        app:enable_touch="false"/>
+        -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/iv_playing_cover"
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="130dp"
-        android:src="@drawable/music_icon" />
+        android:src="@drawable/music_icon"/>
 
     <LinearLayout
         android:id="@+id/layout_love_collect"
@@ -93,7 +112,11 @@
             android:textSize="10sp" />
 
         <!--进度条-->
-
+        <SeekBar
+            android:id="@+id/seekbar_playing"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
         <TextView
             android:id="@+id/music_duration"

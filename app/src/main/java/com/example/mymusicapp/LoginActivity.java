@@ -98,6 +98,7 @@ public class LoginActivity extends Activity {
                             if(isTrue.equals(true)){
                                 //信息准确且选择记住密码
                                 editor=sharedPreferences.edit();
+                                editor.putString("nowUser",userName);
                                 if(checkBoxRememberPassword.isChecked()){
                                     editor.putBoolean("remember_password",true);
                                     editor.putString("userName",userName);

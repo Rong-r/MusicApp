@@ -2,6 +2,7 @@ package com.example.mymusicapp;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -9,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    // 数据库版本
-    private static final int DATABASE_VERSION = 1;
     // 创建数据库的 SQL 语句
     private static final String CREATE_TABLE_USERS = "CREATE TABLE Users (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -67,6 +67,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return storedMusicFiles;
     }
+    //获取存储在数据库中的用户点赞的音乐文件路径集合
+    public List<String> getLovedMusicPath() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> storedMusicFiles = new ArrayList<String>();
+        // 查询数据库中的音乐文件路径
+        String query = "SELECT * FROM Songs WHERE love==1";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                String filePath = cursor.getString(cursor.getColumnIndexOrThrow("filePath"));
+                storedMusicFiles.add(filePath);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return storedMusicFiles;
+    }
+    //获取存储在数据库中的用户收藏的音乐文件路径集合
+    public List<String> getCollectedMusicPath() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<String> storedMusicFiles = new ArrayList<String>();
+        // 查询数据库中的音乐文件路径
+        String query = "SELECT * FROM Songs WHERE collect==1";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                String filePath = cursor.getString(cursor.getColumnIndexOrThrow("filePath"));
+                storedMusicFiles.add(filePath);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return storedMusicFiles;
+    }
 
     //获取本地音乐文件并存储到数据库中
     public static void initSongsDB(Context context) {
@@ -77,11 +111,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // 获取本地音乐文件路径
         List<String> musicPaths = getMusicPaths(musicDirectory);
         Log.d("TAG","musicPaths: "+musicPaths);
-        SQLiteDatabase sqLiteDatabase=helper.getWritableDatabase();
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS Songs");
-        sqLiteDatabase.execSQL(CREATE_TABLE_SONGS);
-        // 存储音乐文件路径到数据库
-        helper.insertMusicFilesInfo(musicPaths);
+        List<String> musicPathsStored = helper.getStoredMusicPath();
+        //有内容变动，则删库更新
+        if(musicPaths.size()!=musicPathsStored.size()){
+            SQLiteDatabase sqLiteDatabase=helper.getWritableDatabase();
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS Songs");
+            sqLiteDatabase.execSQL(CREATE_TABLE_SONGS);
+            // 存储音乐文件路径到数据库
+            helper.insertMusicFilesInfo(musicPaths);
+        }
     }
     //获取指定目录下的音乐文件的路径
     private static List<String> getMusicPaths(File directory) {
@@ -123,7 +161,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
     // 获取文件的歌名
-    public static String getTitle(String filePath) {
+    public String getTitle(String filePath) {
         String title = "unknown";
         MediaMetadataRetriever mmr=new MediaMetadataRetriever();
         try {
@@ -135,7 +173,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return title;
     }
     // 获取文件的歌手
-    public static String getSinger(String filePath) {
+    public String getSinger(String filePath) {
         String artist = "unknown";
         MediaMetadataRetriever mmr=new MediaMetadataRetriever();
         try {
@@ -147,11 +185,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return artist;
     }
     // 获取文件的封面
-    public static Bitmap getCover(String filePath) {
+    public Bitmap getCover(String filePath) {
         MediaMetadataRetriever mmr=new MediaMetadataRetriever();
         mmr.setDataSource(filePath);
         byte[] cover = mmr.getEmbeddedPicture();
         Bitmap bitmap = BitmapFactory.decodeByteArray(cover, 0, cover.length);
         return bitmap;
+    }
+    public void setLoved(String filePath){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues values=new ContentValues();
+        values.put("love",1);
+        db.update("Songs",values,"filePath = ?",new String[]{filePath});
+    }
+    public void setLove(String filePath){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues values=new ContentValues();
+        values.put("love",0);
+        db.update("Songs",values,"filePath = ?",new String[]{filePath});
+    }
+    public void setCollected(String filePath){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues values=new ContentValues();
+        values.put("collect",1);
+        db.update("Songs",values,"filePath = ?",new String[]{filePath});
+    }
+    public void setCollect(String filePath){
+        SQLiteDatabase db = this.getReadableDatabase();
+        ContentValues values=new ContentValues();
+        values.put("collect",1);
+        db.update("Songs",values,"filePath = ?",new String[]{filePath});
     }
 }

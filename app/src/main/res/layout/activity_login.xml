@@ -31,9 +31,10 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="25dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:background="@drawable/login_edit_text_shape"
-            android:singleLine="true"
-            />
+            android:singleLine="true"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout_user_password"
@@ -53,6 +54,8 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="25dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:background="@drawable/login_edit_text_shape"
             android:singleLine="true"
             android:inputType="textPassword"/>

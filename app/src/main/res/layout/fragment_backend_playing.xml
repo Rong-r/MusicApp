@@ -7,7 +7,8 @@
         android:id="@+id/iv_backend_playing_cover"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="10dp" />
+        android:layout_margin="10dp"
+        android:src="@drawable/music_icon"/>
     <TextView
         android:id="@+id/tv_backend_playing_song_title"
         android:layout_width="match_parent"
