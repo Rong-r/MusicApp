@@ -207,5 +207,4 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer.release();
         }
     }
-
 }

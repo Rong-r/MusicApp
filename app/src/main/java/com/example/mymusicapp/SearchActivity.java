@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -26,6 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SearchActivity extends AppCompatActivity {
+    private static String tag="TAG-SearchActivity";
+
     private ImageView imageViewBack;
     private TextView textViewSearch;
     private EditText editTextContent;
@@ -127,6 +130,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
         if(resultPathsList!=null&& !resultPathsList.isEmpty()){
+            Log.d(tag,"resultPathsList: "+resultPathsList);
             return true;
         }else return false;
     }

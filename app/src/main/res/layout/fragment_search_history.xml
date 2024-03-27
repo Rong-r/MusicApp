@@ -5,9 +5,10 @@
     <TextView
         android:id="@+id/tv_search_history"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="35dp"
         android:layout_gravity="start|center"
         android:layout_marginStart="10dp"
+        android:padding="5dp"
         android:text="最近搜索"
         android:textSize="15sp"
         android:textStyle="bold"/>

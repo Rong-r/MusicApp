@@ -2,8 +2,10 @@ package com.example.mymusicapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +20,10 @@ import java.util.List;
 
 
 public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryViewHolder> {
+    private static String tag="TAG-SearchHistoryAdapter";
     private Context mContext;
     private List<String> searchHistoryList=new ArrayList<String>();
+    private List<String> searchHistoryListReverse=new ArrayList<String>();
     private SharedPreferences sharedPreferences;
     private String stringHistory;
     private String[] tokens;
@@ -27,11 +31,11 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryView
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(context);
         stringHistory=sharedPreferences.getString("history","");
         tokens = stringHistory.split(" ");
-
         for(String history :tokens){
             searchHistoryList.add(history);
+            searchHistoryListReverse.add(history);
         }
-        Collections.reverse(searchHistoryList);
+        Collections.reverse(searchHistoryListReverse);
         mContext=context;
     }
 
@@ -45,18 +49,21 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryView
 
     @Override
     public void onBindViewHolder(@NonNull SearchHistoryViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        String nowTitle=searchHistoryList.get(position);
+        String nowTitle=searchHistoryListReverse.get(position);
         holder.textViewTitle.setText(nowTitle);
         holder.imageViewDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 searchHistoryList.remove(position);
                 SharedPreferences.Editor editor=sharedPreferences.edit();
-                editor.putString("history",searchHistoryList.toString());
+                String newHistory=new String("");
+                for(String item:searchHistoryList){
+                    newHistory=newHistory+item+" ";
+                }
+                editor.putString("history",newHistory);
                 editor.apply();
             }
         });
-
     }
     @Override
     public int getItemCount() {
