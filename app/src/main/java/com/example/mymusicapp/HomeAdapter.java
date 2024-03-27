@@ -3,7 +3,6 @@ package com.example.mymusicapp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-
 public class HomeAdapter extends RecyclerView.Adapter<HomeViewHolder> {
     private Context mContext;
     private List<String> MusicsPathsListInDB;
-    public HomeAdapter(Context context,List<String> musicPaths){
+    public HomeAdapter(Context context, List<String> musicPaths){
         mContext=context;
         MusicsPathsListInDB=musicPaths;
     }

@@ -52,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
         initView();
         initListener();
 
-
-
     }
     private void permission(){
         if(checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO)!= PackageManager.PERMISSION_GRANTED||

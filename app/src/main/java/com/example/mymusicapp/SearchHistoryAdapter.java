@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryViewHolder> {
     private Context mContext;
-    private List<String> searchHistoryList;
+    private List<String> searchHistoryList=new ArrayList<String>();
     private SharedPreferences sharedPreferences;
     private String stringHistory;
     private String[] tokens;
@@ -26,7 +27,10 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<SearchHistoryView
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(context);
         stringHistory=sharedPreferences.getString("history","");
         tokens = stringHistory.split(" ");
-        searchHistoryList= Arrays.asList(tokens);
+
+        for(String history :tokens){
+            searchHistoryList.add(history);
+        }
         Collections.reverse(searchHistoryList);
         mContext=context;
     }

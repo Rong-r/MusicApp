@@ -2,16 +2,11 @@ package com.example.mymusicapp;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.database.sqlite.SQLiteDatabase;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
@@ -20,35 +15,25 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class PlayActivity extends Activity {
     private DatabaseHelper databaseHelper;
-    private MediaPlayer mediaPlayer=new MediaPlayer();
-    private ImageView imageViewPlaying;
-    private ImageView imageViewBack;
-    private ImageView imageViewLove;
-    private ImageView imageViewCollect;
-    private ImageView imageViewList;
-    private ImageView imageViewCover;
+    private ImageView imageViewPlaying,imageViewLast,imageViewNext;
+    private ImageView imageViewBack,imageViewLove,imageViewCollect,imageViewList,imageViewCover;
     private static SeekBar seekBar;
-    private static TextView textViewDuration;
-    private static TextView textViewCurrentTime;
-    private TextView textViewTitle;
-    private TextView textViewSinger;
+    private static TextView textViewDuration,textViewCurrentTime,textViewTitle,textViewSinger;
     private Intent intentCome;
-    private Intent intentPost;
-    private String filePath;
-    private String fromList;
-    private MusicService.MusicControl musicControl;
-    private MyServiceConn conn;
-    //记录服务是否被解绑，默认没有
-    private boolean isUnbind =false;
+    private String filePath,fromList;
+    private MediaPlayer mediaPlayer;
+    private Timer timer;
     private ObjectAnimator animator;
     public static Handler handler=new Handler(Looper.myLooper()){
         @Override
@@ -95,6 +80,29 @@ public class PlayActivity extends Activity {
             textViewCurrentTime.setText(strMinute+":"+strSecond);
         }
     };
+    private void setInfo(String path){
+        textViewTitle.setText(databaseHelper.getTitle(filePath));
+        textViewSinger.setText(databaseHelper.getSinger(filePath));
+        imageViewCover.setImageBitmap(databaseHelper.getCover(filePath));
+        try {
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+            }
+            mediaPlayer.reset();//复位播放器
+            mediaPlayer.setDataSource(filePath);
+            mediaPlayer.prepare();//播放准备
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    addTimer();
+                    mediaPlayer.start();//播放开始
+                    animator.start();
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,27 +110,9 @@ public class PlayActivity extends Activity {
         setContentView(R.layout.activity_playing);
         databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
         intentCome=getIntent();
-        fromList=intentCome.getStringExtra("musicList");
-        Log.d("TAG",fromList);
-        filePath=intentCome.getStringExtra("musicPath");
-        Log.d("TAG",filePath);
-        initView();
-        intentPost=new Intent(this,MusicService.class);//创建服务连接对象
-        conn=new MyServiceConn();//创建服务连接对象
-        bindService(intentPost,conn,BIND_AUTO_CREATE);//绑定服务
-        initInfo();
-        initListener();
-
-
-
-//注册监听
-        //mediaPlayer.setOnBufferingUpdateListener();
-
-
-    }
-
-    private void initView(){
         imageViewPlaying=(ImageView) findViewById(R.id.iv_playing);
+        imageViewLast=(ImageView) findViewById(R.id.iv_playing_last);
+        imageViewNext=(ImageView) findViewById(R.id.iv_playing_next);
         imageViewLove=(ImageView) findViewById(R.id.iv_playing_love);
         imageViewCollect=(ImageView) findViewById(R.id.iv_playing_collect);
         imageViewBack=(ImageView)findViewById(R.id.iv_playing_back);
@@ -134,13 +124,64 @@ public class PlayActivity extends Activity {
         textViewTitle=(TextView)findViewById(R.id.tv_playing_song_title);
         textViewSinger=(TextView)findViewById(R.id.tv_playing_singer);
 
+        fromList=intentCome.getStringExtra("musicList");
+        Log.d("TAG",fromList);
+        filePath=intentCome.getStringExtra("musicPath");
+        Log.d("TAG",filePath);
+        setInfo(filePath);
+
         //rotation和0f,360.0f就设置了动画是从0°旋转到360°
         animator=ObjectAnimator.ofFloat(imageViewCover,"rotation",0f,360.0f);
         animator.setDuration(10000);//动画旋转一周的时间为10秒
         animator.setInterpolator(new LinearInterpolator());//匀速
         animator.setRepeatCount(-1);//-1表示设置动画无限循环
-    }
-    private void initListener(){
+
+        imageViewPlaying.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(imageViewPlaying.getTag().equals("toPause")){
+                    if(mediaPlayer.isPlaying()){
+                        //要暂停
+                        mediaPlayer.pause();
+                        animator.pause();
+                    }
+                    imageViewPlaying.setImageResource(R.drawable.playing_to_play);
+                    imageViewPlaying.setTag("toPlay");
+                }else {
+                    if(!mediaPlayer.isPlaying()){
+                        //要播放
+                        mediaPlayer.start();
+                        animator.start();
+                    }
+                    imageViewPlaying.setImageResource(R.drawable.playing_to_pause);
+                    imageViewPlaying.setTag("toPause");
+                }
+            }
+        });
+        imageViewLast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaPlayer.pause();
+                animator.pause();
+                String newFilePath=databaseHelper.getLastFilePath(filePath,fromList);
+                Log.d("TAG","newFilePath: "+newFilePath);
+                filePath=newFilePath;
+                Log.d("TAG","filePathNew: "+newFilePath);
+                onResume();
+            }
+        });
+        imageViewNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaPlayer.pause();
+                animator.pause();
+                String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
+                Log.d("TAG","newFilePath: "+newFilePath);
+                filePath=newFilePath;
+                Log.d("TAG","filePathNew: "+newFilePath);
+                onResume();
+            }
+        });
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -158,30 +199,10 @@ public class PlayActivity extends Activity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 //根据拖动的进度改变音乐播放进度
                 int progress=seekBar.getProgress();//获取seekBar的进度
-                musicControl.seekTo(progress);//改变播放进度
+                mediaPlayer.seekTo(progress);//改变播放进度
             }
         });
-        imageViewPlaying.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(imageViewPlaying.getTag().equals("toPause")){
-                    //要暂停
-                    musicControl.pausePlay();
-                    imageViewPlaying.setImageResource(R.drawable.playing_to_play);
-                    imageViewPlaying.setTag("toPlay");
-                }else {
-                    //要播放
-                    if(musicControl.isFirstPlay==1){
-                        musicControl.play(filePath);
-                        musicControl.setIsFirstPlay(0);
-                    }else {
-                        musicControl.continuePlay();
-                    }
-                    imageViewPlaying.setImageResource(R.drawable.playing_to_pause);
-                    imageViewPlaying.setTag("toPause");
-                }
-            }
-        });
+
         imageViewLove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -224,34 +245,41 @@ public class PlayActivity extends Activity {
                 startActivity(intent);
             }
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setInfo(filePath);
     }
-    private void initInfo(){
-        textViewTitle.setText(databaseHelper.getTitle(filePath));
-        textViewSinger.setText(databaseHelper.getSinger(filePath));
-        imageViewCover.setImageBitmap(databaseHelper.getCover(filePath));
-    }
-    //用于实现连接服务，比较模板化，不需要详细知道内容
-    class MyServiceConn implements ServiceConnection {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service){
-            musicControl=(MusicService.MusicControl) service;
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName name){
 
+    //添加计时器用于设置音乐播放器中的播放进度条
+    public void addTimer(){
+        //如果timer不存在，也就是没有引用实例
+        if(timer==null){
+            //创建计时器对象
+            timer=new Timer();
+            TimerTask task=new TimerTask() {
+                @Override
+                public void run() {
+                    if (mediaPlayer==null) return;
+                    int duration=mediaPlayer.getDuration();//获取歌曲总时长
+                    int currentPosition=mediaPlayer.getCurrentPosition();//获取播放进度
+                    Message msg= PlayActivity.handler.obtainMessage();//创建消息对象
+                    //将音乐的总时长和播放进度封装至bundle中
+                    Bundle bundle=new Bundle();
+                    bundle.putInt("duration",duration);
+                    bundle.putInt("currentPosition",currentPosition);
+                    //再将bundle封装到msg消息对象中
+                    msg.setData(bundle);
+                    //最后将消息发送到主线程的消息队列
+                    PlayActivity.handler.sendMessage(msg);
+                }
+            };
+            //开始计时任务后的5毫秒，第一次执行task任务，以后每500毫秒（0.5s）执行一次
+            timer.schedule(task,5,500);
         }
     }
-    //判断服务是否被解绑
-    private void unbind(boolean isUnbind){
-        //如果解绑了
-        if(!isUnbind){
-            musicControl.pausePlay();//音乐暂停播放
-            unbindService(conn);//解绑服务
-        }
-    }
-    protected void onDestroy(){
-        super.onDestroy();
-        unbind(isUnbind);//解绑服务
-    }
+
+
 }

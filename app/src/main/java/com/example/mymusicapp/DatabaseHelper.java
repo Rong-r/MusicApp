@@ -101,6 +101,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return storedMusicFiles;
     }
+  /*  public List<String> getSearchResultMusicPath(String searchContent) {
+        List<String> resultPathsList = new ArrayList<String>();
+        List<String>  allMusicsPathsList=getStoredMusicPath();
+        // 使用空格作为分隔符来分割字符串
+        String[] tokens = searchContent.split(" ");
+        for (String item : allMusicsPathsList) {
+            for (String filterWord : tokens) {
+                if (item.contains(filterWord)) {
+                    resultPathsList.add(item);
+                    break;
+                }
+            }
+        }
+        return resultPathsList;
+    }
+
+   */
 
     //获取本地音乐文件并存储到数据库中
     public static void initSongsDB(Context context) {
@@ -215,5 +232,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values=new ContentValues();
         values.put("collect",1);
         db.update("Songs",values,"filePath = ?",new String[]{filePath});
+    }
+    public String getLastFilePath(String filePath,String ListName){
+        List<String> list=new ArrayList<>();
+        if(ListName.equals("collected")){
+            list=getCollectedMusicPath();
+        } else if(ListName.equals("loved")){
+            list=getLovedMusicPath();
+        }else {
+            list=getStoredMusicPath();
+        }
+        Log.d("TAG","nowList: "+list.toString());
+        // 使用循环查找目标字符串的下标
+        int index = -1;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).equalsIgnoreCase(filePath)) {
+                index = i;
+                break;
+            }
+        }
+        Log.d("TAG","nowIndex: "+index);
+        if(index==0){
+            Log.d("TAG","returnPath: "+filePath);
+            return filePath;
+        }else{
+            Log.d("TAG","returnPath: "+list.get(index-1));
+            return list.get(index-1);
+        }
+    }
+    public String getNextFilePath(String filePath,String ListName){
+        List<String> list=new ArrayList<>();
+        if(ListName.equals("collected")){
+            list=getCollectedMusicPath();
+        } else if(ListName.equals("loved")){
+            list=getLovedMusicPath();
+        }else {
+            list=getStoredMusicPath();
+        }
+        // 使用循环查找目标字符串的下标
+        int index = -1;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).equalsIgnoreCase(filePath)) {
+                index = i;
+                break;
+            }
+        }
+        if(index==(list.size()-1)){
+            return filePath;
+        }else{
+            return list.get(index+1);
+        }
     }
 }

@@ -149,8 +149,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/playing_to_play"
-            android:tag="toPlay" />
+            android:src="@drawable/playing_to_pause"
+            android:tag="toPause" />
         <ImageView
             android:id="@+id/iv_playing_next"
             android:layout_width="wrap_content"

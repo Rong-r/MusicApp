@@ -1,9 +1,8 @@
 package com.example.mymusicapp;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,29 +10,30 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ListActivity extends Activity {
-    private SharedPreferences sharedPreferences;
-    private DatabaseHelper databaseHelper;
     private RecyclerView recyclerView;
     private TextView textViewListTitle;
-    private List<String> musicsPathsList;
     private ImageView imageViewBack;
     private ImageView imageViewListIcon;
+    private Intent intent;
+    private String listName;
+    private List<String> musicList;
+    private DatabaseHelper databaseHelper;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-        sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
         databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
+        intent=getIntent();
+        listName=intent.getStringExtra("checkList");
         recyclerView=(RecyclerView) findViewById(R.id.recyclerView_list);
         imageViewBack=(ImageView) findViewById(R.id.iv_search_back);
         imageViewListIcon=(ImageView) findViewById(R.id.iv_list_icon);
         textViewListTitle=(TextView)findViewById(R.id.tv_list_title);
-        musicsPathsList=getList();
-        recyclerView.setAdapter(new HomeAdapter(this,musicsPathsList));
+        getList();
+        recyclerView.setAdapter(new HomeAdapter(this,musicList));
         imageViewBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -41,21 +41,19 @@ public class ListActivity extends Activity {
             }
         });
     }
-    private List<String> getList(){
-        String checkList=sharedPreferences.getString("checkList","all");
-        List<String> list=new ArrayList<String>();
-        if(checkList.equals("collected")){
+    private void getList(){
+        if(listName.equals("collected")){
+            musicList=databaseHelper.getCollectedMusicPath();
             textViewListTitle.setText("我的收藏");
             imageViewListIcon.setImageResource(R.drawable.playing_loved);
-            list=databaseHelper.getCollectedMusicPath();
-        } else if (checkList.equals("loved")) {
+        } else if (listName.equals("loved")) {
+            musicList=databaseHelper.getLovedMusicPath();
             textViewListTitle.setText("我的喜爱");
             imageViewListIcon.setImageResource(R.drawable.playing_collected);
-            list=databaseHelper.getLovedMusicPath();
+
         }else {
+            musicList=databaseHelper.getStoredMusicPath();
             textViewListTitle.setText("全部歌曲");
-            list=databaseHelper.getStoredMusicPath();
         }
-        return list;
     }
 }
