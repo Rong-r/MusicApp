@@ -101,23 +101,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return storedMusicFiles;
     }
-  /*  public List<String> getSearchResultMusicPath(String searchContent) {
-        List<String> resultPathsList = new ArrayList<String>();
-        List<String>  allMusicsPathsList=getStoredMusicPath();
-        // 使用空格作为分隔符来分割字符串
-        String[] tokens = searchContent.split(" ");
-        for (String item : allMusicsPathsList) {
-            for (String filterWord : tokens) {
-                if (item.contains(filterWord)) {
-                    resultPathsList.add(item);
-                    break;
-                }
-            }
-        }
-        return resultPathsList;
-    }
-
-   */
 
     //获取本地音乐文件并存储到数据库中
     public static void initSongsDB(Context context) {
@@ -282,5 +265,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }else{
             return list.get(index+1);
         }
+    }
+    public int isLoved(String checkedFilePath){
+        int love=0;
+        List<String> storedMusicFiles=getLovedMusicPath();
+        for (String item : storedMusicFiles) {
+            if(item.equals(checkedFilePath)){
+                love=1;
+                break;
+            }
+        }
+        return love;
+    }
+    public int isCollected(String checkedFilePath){
+        int collect=0;
+        List<String> storedMusicFiles=getCollectedMusicPath();
+        for (String item : storedMusicFiles) {
+            if(item.equals(checkedFilePath)){
+                collect=1;
+                break;
+            }
+        }
+        return collect;
     }
 }

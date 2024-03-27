@@ -42,7 +42,6 @@
             android:layout_gravity="center_vertical"
             android:imeOptions="actionDone"
             android:singleLine="true"
-            android:text="本地搜索"
             android:textSize="14sp"
             android:textColor="#73000000"
             android:background="@android:color/transparent"/>

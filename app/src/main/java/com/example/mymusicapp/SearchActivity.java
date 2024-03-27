@@ -1,6 +1,7 @@
 package com.example.mymusicapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,17 +44,14 @@ public class SearchActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.fragment_container_under_search, SearchResultFragment.class,bundle)
                         .addToBackStack("searchResult").commit();
-
             }else {
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.fragment_container_under_search, SearchNullFragment.class,null)
                         .addToBackStack("searchNull").commit();
             }
-            Toast.makeText(SearchActivity.this,"收到消息",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(SearchActivity.this,"收到消息",Toast.LENGTH_SHORT).show();
         }
     };
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,10 +85,17 @@ public class SearchActivity extends AppCompatActivity {
                         handler.sendMessage(message);
                     }
                 }).start();
-                Toast.makeText(SearchActivity.this,"开启子线程请求",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(SearchActivity.this,"开启子线程请求",Toast.LENGTH_SHORT).show();
             }
         });
-
+        editTextContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(b){
+                    editTextContent.setText("");
+                }
+            }
+        });
     }
     private void addHistory(String content){
         String history=sharedPreferences.getString("history","");

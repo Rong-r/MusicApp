@@ -25,9 +25,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class PlayActivity extends Activity {
-    private DatabaseHelper databaseHelper;
+    private static String tag="TAG-PlayActivity";
+    private static DatabaseHelper databaseHelper;
     private ImageView imageViewPlaying,imageViewLast,imageViewNext;
-    private ImageView imageViewBack,imageViewLove,imageViewCollect,imageViewList,imageViewCover;
+    private ImageView imageViewBack;
+    private static ImageView imageViewLove;
+    private static ImageView imageViewCollect;
+    private ImageView imageViewList;
+    private static ImageView imageViewCover;
     private static SeekBar seekBar;
     private static TextView textViewDuration,textViewCurrentTime,textViewTitle,textViewSinger;
     private Intent intentCome;
@@ -40,12 +45,38 @@ public class PlayActivity extends Activity {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             Bundle bundle=msg.getData();//获取从子线程发送过来的音乐播放进度
-            //获取当前进度currentPosition和总时长duration
-            int duration=bundle.getInt("duration");
+            //获取当前进度currentPosition
             int currentPosition=bundle.getInt("currentPosition");
             //对进度条进行设置
-            seekBar.setMax(duration);
             seekBar.setProgress(currentPosition);
+            //歌曲当前播放时长
+            int minute=currentPosition/1000/60;
+            int second=currentPosition/1000%60;
+            String strMinute=null;
+            String strSecond=null;
+            if(minute<10){//如果歌曲的时间中的分钟小于10
+                strMinute="0"+minute;//在分钟的前面加一个0
+            }else{
+                strMinute=minute+" ";
+            }
+            if (second<10){//如果歌曲中的秒钟小于10
+                strSecond="0"+second;//在秒钟前面加一个0
+            }else{
+                strSecond=second+" ";
+            }
+            //显示当前歌曲已经播放的时间
+            textViewCurrentTime.setText(strMinute+":"+strSecond);
+        }
+    };
+    public static Handler handlerDuration=new Handler(Looper.myLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Bundle bundle=msg.getData();//获取从子线程发送过来的音乐播放进度
+            //获取总时长duration
+            int duration=bundle.getInt("duration");
+            //对进度条进行设置
+            seekBar.setMax(duration);
             //歌曲是多少分钟多少秒钟
             int minute=duration/1000/60;
             int second=duration/1000%60;
@@ -63,37 +94,47 @@ public class PlayActivity extends Activity {
             }
             //这里就显示了歌曲总时长
             textViewDuration.setText(strMinute+":"+strSecond);
-            //歌曲当前播放时长
-            minute=currentPosition/1000/60;
-            second=currentPosition/1000%60;
-            if(minute<10){//如果歌曲的时间中的分钟小于10
-                strMinute="0"+minute;//在分钟的前面加一个0
-            }else{
-                strMinute=minute+" ";
-            }
-            if (second<10){//如果歌曲中的秒钟小于10
-                strSecond="0"+second;//在秒钟前面加一个0
-            }else{
-                strSecond=second+" ";
-            }
-            //显示当前歌曲已经播放的时间
-            textViewCurrentTime.setText(strMinute+":"+strSecond);
         }
     };
-    private void setInfo(String path){
-        textViewTitle.setText(databaseHelper.getTitle(filePath));
-        textViewSinger.setText(databaseHelper.getSinger(filePath));
-        imageViewCover.setImageBitmap(databaseHelper.getCover(filePath));
+    public static Handler handlerInfo=new Handler(Looper.myLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Bundle bundle=msg.getData();
+            String path=bundle.getString("path");
+
+            textViewTitle.setText(databaseHelper.getTitle(path));
+            textViewSinger.setText(databaseHelper.getSinger(path));
+            imageViewCover.setImageBitmap(databaseHelper.getCover(path));
+
+            if(databaseHelper.isLoved(path)==1){
+                imageViewLove.setImageResource(R.drawable.playing_loved);
+                imageViewLove.setTag("loved");
+            }else {
+                imageViewLove.setImageResource(R.drawable.playing_love);
+                imageViewLove.setTag("notLove");
+            }
+            if(databaseHelper.isCollected(path)==1){
+                imageViewCollect.setImageResource(R.drawable.playing_collected);
+                imageViewCollect.setTag("collected");
+            }else {
+                imageViewCollect.setImageResource(R.drawable.playing_collect);
+                imageViewCollect.setTag("notCollect");
+            }
+        }
+    };
+    private void setMediaPlayer(String path){
         try {
             if (mediaPlayer == null) {
                 mediaPlayer = new MediaPlayer();
             }
             mediaPlayer.reset();//复位播放器
-            mediaPlayer.setDataSource(filePath);
+            mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();//播放准备
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {
+                    setDuration(filePath);
                     addTimer();
                     mediaPlayer.start();//播放开始
                     animator.start();
@@ -124,11 +165,12 @@ public class PlayActivity extends Activity {
         textViewTitle=(TextView)findViewById(R.id.tv_playing_song_title);
         textViewSinger=(TextView)findViewById(R.id.tv_playing_singer);
 
-        fromList=intentCome.getStringExtra("musicList");
+        fromList=intentCome.getStringExtra("checkList");
         Log.d("TAG",fromList);
         filePath=intentCome.getStringExtra("musicPath");
         Log.d("TAG",filePath);
         setInfo(filePath);
+        setMediaPlayer(filePath);
 
         //rotation和0f,360.0f就设置了动画是从0°旋转到360°
         animator=ObjectAnimator.ofFloat(imageViewCover,"rotation",0f,360.0f);
@@ -178,7 +220,7 @@ public class PlayActivity extends Activity {
                 String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
                 Log.d("TAG","newFilePath: "+newFilePath);
                 filePath=newFilePath;
-                Log.d("TAG","filePathNew: "+newFilePath);
+                Log.d("TAG","filePathNew: "+filePath);
                 onResume();
             }
         });
@@ -188,6 +230,13 @@ public class PlayActivity extends Activity {
                 //进当滑动条到末端时，结束动画
                 if (i==seekBar.getMax()){
                     animator.pause();//停止播放动画
+                    mediaPlayer.pause();
+                    animator.pause();
+                    String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
+                    Log.d("TAG","newFilePath: "+newFilePath);
+                    filePath=newFilePath;
+                    Log.d("TAG","filePathNew: "+filePath);
+                    onResume();
                 }
             }
             //滑动条开始滑动时调用
@@ -234,6 +283,7 @@ public class PlayActivity extends Activity {
         imageViewBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mediaPlayer.stop();
                 finish();
             }
         });
@@ -251,6 +301,7 @@ public class PlayActivity extends Activity {
     protected void onResume() {
         super.onResume();
         setInfo(filePath);
+        setMediaPlayer(filePath);
     }
 
     //添加计时器用于设置音乐播放器中的播放进度条
@@ -263,23 +314,53 @@ public class PlayActivity extends Activity {
                 @Override
                 public void run() {
                     if (mediaPlayer==null) return;
-                    int duration=mediaPlayer.getDuration();//获取歌曲总时长
                     int currentPosition=mediaPlayer.getCurrentPosition();//获取播放进度
-                    Message msg= PlayActivity.handler.obtainMessage();//创建消息对象
+                    Message msg= handler.obtainMessage();//创建消息对象
                     //将音乐的总时长和播放进度封装至bundle中
                     Bundle bundle=new Bundle();
-                    bundle.putInt("duration",duration);
                     bundle.putInt("currentPosition",currentPosition);
                     //再将bundle封装到msg消息对象中
                     msg.setData(bundle);
                     //最后将消息发送到主线程的消息队列
-                    PlayActivity.handler.sendMessage(msg);
+                    handler.sendMessage(msg);
                 }
             };
             //开始计时任务后的5毫秒，第一次执行task任务，以后每500毫秒（0.5s）执行一次
             timer.schedule(task,5,500);
         }
     }
-
-
+    private void setInfo(String path){
+        //开启子线程
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //传递用户输入
+                String toPlayPath=path;
+                Message message=handlerInfo.obtainMessage();
+                Bundle bundle=new Bundle();
+                bundle.putString("path",toPlayPath);
+                //再将bundle封装到msg消息对象中
+                message.setData(bundle);
+                handlerInfo.sendMessage(message);
+            }
+        }).start();
+    }
+    private void setDuration(String path){
+        //开启子线程
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (mediaPlayer==null) return;
+                int duration=mediaPlayer.getDuration();//获取歌曲总时长
+                Message msg= handlerDuration.obtainMessage();//创建消息对象
+                //将音乐的总时长封装至bundle中
+                Bundle bundle=new Bundle();
+                bundle.putInt("duration",duration);
+                //再将bundle封装到msg消息对象中
+                msg.setData(bundle);
+                //最后将消息发送到主线程的消息队列
+                handlerDuration.sendMessage(msg);
+            }
+        }).start();
+    }
 }

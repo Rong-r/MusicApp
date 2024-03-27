@@ -27,10 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static String tag="TAG-MainActivity";
     private DrawerLayout drawerLayout;
     private ImageView imageViewInfo;
     private ImageView imageViewPlay;
     private ImageView imageViewList;
+    private ImageView imageViewUserIcon;
     private EditText editTextSearch;
     private DatabaseHelper databaseHelper;
     private RecyclerView recyclerViewList;
@@ -51,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         permission();
         initView();
         initListener();
-
     }
     private void permission(){
         if(checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO)!= PackageManager.PERMISSION_GRANTED||
@@ -80,9 +81,10 @@ public class MainActivity extends AppCompatActivity {
         imageViewPlay=(ImageView)findViewById(R.id.iv_bottom_playing_play);
         imageViewInfo=(ImageView) findViewById(R.id.iv_user_info);
         imageViewList=(ImageView) findViewById(R.id.iv_bottom_playing_list);
+        imageViewUserIcon=(ImageView) findViewById(R.id.iv_user);
         recyclerViewList=(RecyclerView)findViewById(R.id.recyclerView_home_list);
         musicsPathsList=databaseHelper.getStoredMusicPath();
-        recyclerViewList.setAdapter(new HomeAdapter(this,musicsPathsList));
+        recyclerViewList.setAdapter(new HomeAdapter(this,musicsPathsList,"all"));
         drawerLayout=(DrawerLayout) findViewById(R.id.layout_main);
         linearLayoutUserLove=(LinearLayout)findViewById(R.id.layout_user_loved);
         linearLayoutUserCollect=(LinearLayout)findViewById(R.id.layout_user_collected);
@@ -93,11 +95,18 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
         editor=sharedPreferences.edit();
+        String userName=sharedPreferences.getString("nowUser","");
+        if(userName.isEmpty()){
+            imageViewInfo.setImageResource(R.drawable.user);
+        }else {
+            imageViewInfo.setImageResource(R.drawable.user_icon_example);
+        }
         imageViewInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String userName=sharedPreferences.getString("nowUser","");
                 if(userName.isEmpty()){
+                    imageViewUserIcon.setImageResource(R.drawable.user);
+                    imageViewInfo.setImageResource(R.drawable.user);
                     textViewUser.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -119,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }else {
+                    imageViewUserIcon.setImageResource(R.drawable.user_icon_example);
+                    imageViewInfo.setImageResource(R.drawable.user_icon_example);
                     textViewUser.setText(userName);
                     textViewExit.setOnClickListener(new View.OnClickListener() {
                         @Override

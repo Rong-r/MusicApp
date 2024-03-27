@@ -17,7 +17,8 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/user_icon_example"
+            android:layout_marginLeft="15dp"
+            android:src="@drawable/user"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/layout_search"
             app:layout_constraintTop_toTopOf="parent"
@@ -111,7 +112,7 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:layout_centerHorizontal="true"
-                android:src="@drawable/user_icon_example"/>
+                android:src="@drawable/user_big"/>
             <TextView
                 android:id="@+id/tv_user_id"
                 android:layout_width="wrap_content"

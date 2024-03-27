@@ -39,7 +39,7 @@ public class SearchResultFragment extends Fragment {
             }
         }
         recyclerView=getActivity().findViewById(R.id.recyclerView_search_result);
-        recyclerView.setAdapter(new SearchResultAdapter(getActivity(),resultPathsList));
+        recyclerView.setAdapter(new HomeAdapter(getActivity(),resultPathsList,""));
 
         //下拉时触发SwipeReFreshLayout的下拉动画
         SwipeRefreshLayout swipeRefreshLayout=getActivity().findViewById(R.id.swipe_refresh_layout_result);
