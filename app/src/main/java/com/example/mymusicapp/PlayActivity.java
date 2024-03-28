@@ -17,6 +17,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,6 +46,8 @@ public class PlayActivity extends Activity {
     private MediaPlayer mediaPlayer;
     private Timer timer;
     private ObjectAnimator animator;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
     public static Handler handler=new Handler(Looper.myLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -107,19 +110,21 @@ public class PlayActivity extends Activity {
             super.handleMessage(msg);
             Bundle bundle=msg.getData();
             String path=bundle.getString("path");
+            String nowUser=bundle.getString("nowUser");
 
             textViewTitle.setText(databaseHelper.getTitle(path));
             textViewSinger.setText(databaseHelper.getSinger(path));
             imageViewCover.setImageBitmap(databaseHelper.getCover(path));
 
-            if(databaseHelper.isLoved(path)==1){
+
+            if(databaseHelper.isLoved(path)==1&&!nowUser.isEmpty()){
                 imageViewLove.setImageResource(R.drawable.playing_loved);
                 imageViewLove.setTag("loved");
             }else {
                 imageViewLove.setImageResource(R.drawable.playing_love);
                 imageViewLove.setTag("notLove");
             }
-            if(databaseHelper.isCollected(path)==1){
+            if(databaseHelper.isCollected(path)==1&&!nowUser.isEmpty()){
                 imageViewCollect.setImageResource(R.drawable.playing_collected);
                 imageViewCollect.setTag("collected");
             }else {
@@ -155,6 +160,8 @@ public class PlayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playing);
         databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
+        sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
+        editor=sharedPreferences.edit();
         intentCome=getIntent();
         imageViewPlaying=(ImageView) findViewById(R.id.iv_playing);
         imageViewLast=(ImageView) findViewById(R.id.iv_playing_last);
@@ -260,14 +267,18 @@ public class PlayActivity extends Activity {
         imageViewLove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(imageViewLove.getTag().equals("notLove")){
+                String nowUser=sharedPreferences.getString("nowUser","");
+                if(imageViewLove.getTag().equals("notLove")&&!nowUser.isEmpty()){
                     databaseHelper.setLoved(filePath);
                     imageViewLove.setImageResource(R.drawable.playing_loved);
                     imageViewLove.setTag("loved");
-                }else {
+                }else if(!nowUser.isEmpty()){
                     databaseHelper.setLove(filePath);
                     imageViewLove.setImageResource(R.drawable.playing_love);
                     imageViewLove.setTag("notLove");
+                }
+                else {
+                    Toast.makeText(PlayActivity.this,"当前为游客模式，请先登录",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -300,6 +311,7 @@ public class PlayActivity extends Activity {
                     editor.putBoolean("nowIsPlaying",false);
                 }
                 editor.apply();
+                Log.d("TAG","post nowIsPlaying:"+mediaPlayer.isPlaying());
                 mediaPlayer.stop();
 
                 finish();
@@ -343,8 +355,8 @@ public class PlayActivity extends Activity {
                     handler.sendMessage(msg);
                 }
             };
-            //开始计时任务后的5毫秒，第一次执行task任务，以后每500毫秒（0.5s）执行一次
-            timer.schedule(task,5,500);
+            //开始计时任务后的5毫秒，第一次执行task任务，以后每1000毫秒（1s）执行一次
+            timer.schedule(task,5,10000);
         }
     }
     private void setInfo(String path){
@@ -354,9 +366,11 @@ public class PlayActivity extends Activity {
             public void run() {
                 //传递用户输入
                 String toPlayPath=path;
+                String nowUser=sharedPreferences.getString("nowUser","");
                 Message message=handlerInfo.obtainMessage();
                 Bundle bundle=new Bundle();
                 bundle.putString("path",toPlayPath);
+                bundle.putString("nowUser",nowUser);
                 //再将bundle封装到msg消息对象中
                 message.setData(bundle);
                 handlerInfo.sendMessage(message);

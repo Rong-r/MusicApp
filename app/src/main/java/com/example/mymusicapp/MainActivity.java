@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -184,18 +185,14 @@ public class MainActivity extends AppCompatActivity {
         imageViewPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(imageViewPlay.getTag().equals("toPause")){
+                if(imageViewPlay.getTag().equals("toPause")&&mediaPlayer.isPlaying()){
                     //要暂停
-                    if(mediaPlayer.isPlaying()){
-                        mediaPlayer.pause();
-                    }
+                    mediaPlayer.pause();
                     imageViewPlay.setImageResource(R.drawable.playing_to_play);
                     imageViewPlay.setTag("toPlay");
-                }else {
-                    //要播放
-                    if(!mediaPlayer.isPlaying()){
-                        mediaPlayer.start();
-                    }
+
+                }else if(!mediaPlayer.isPlaying()){
+                    mediaPlayer.start();
                     imageViewPlay.setImageResource(R.drawable.playing_to_pause);
                     imageViewPlay.setTag("toPause");
                 }
@@ -217,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
         if (mediaPlayer!=null){
             editor.putInt("nowCurrentDuration",mediaPlayer.getCurrentPosition());
             editor.putBoolean("nowIsPlaying",false);
+            editor.putString("fromActivity","Restart");
             editor.apply();
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -224,25 +222,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        String fromActivity=sharedPreferences.getString("fromActivity","");
-        if(fromActivity.equals("PlayActivity")){
-            String nowPath=sharedPreferences.getString("nowPath","");
-            int nowCurrentDuration=sharedPreferences.getInt("nowCurrentDuration",0);
-            String nowList=sharedPreferences.getString("nowList","");
-            Boolean nowIsPlaying=sharedPreferences.getBoolean("nowIsPlaying",true);
-            if (!nowPath.isEmpty()){
-                setInfo(nowPath,nowIsPlaying);
-                setMediaPlayer(nowPath,nowCurrentDuration);
+    protected void onRestart() {
+        super.onRestart();
+        String fromActivity = sharedPreferences.getString("fromActivity", "");
+        Log.d("TAG", "get fromActivity:" + fromActivity);
+        if (fromActivity.equals("PlayActivity")) {
+            String nowPath = sharedPreferences.getString("nowPath", "");
+            int nowCurrentDuration = sharedPreferences.getInt("nowCurrentDuration", 0);
+            String nowList = sharedPreferences.getString("nowList", "");
+            Boolean nowIsPlaying = sharedPreferences.getBoolean("nowIsPlaying", false);
+            if (!nowPath.isEmpty()) {
+                setInfo(nowPath, nowIsPlaying);
+                setMediaPlayer(nowPath, nowCurrentDuration,nowIsPlaying);
             }
-            if(!nowList.isEmpty()){
+            if (!nowList.isEmpty()) {
                 imageViewList.setTag(nowList);
             }
         }
 
     }
-    private void setMediaPlayer(String path,int currentDuration){
+    private void setMediaPlayer(String path,int currentDuration,Boolean isPlaying){
         try {
             if (mediaPlayer == null) {
                 mediaPlayer = new MediaPlayer();
@@ -254,7 +253,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {
                     mediaPlayer.seekTo(currentDuration);
-                    mediaPlayer.start();//播放开始
+                    if(isPlaying){
+                        mediaPlayer.start();//播放开始
+                    }
                 }
             });
         } catch (IOException e) {
@@ -293,6 +294,9 @@ public class MainActivity extends AppCompatActivity {
                 Bundle bundle=new Bundle();
                 bundle.putString("path",toPlayPath);
                 bundle.putBoolean("isPlaying",isPlaying);
+                if(isPlaying.equals(false)){
+                    mediaPlayer.pause();
+                }
                 //再将bundle封装到msg消息对象中
                 message.setData(bundle);
                 handlerInfo.sendMessage(message);
