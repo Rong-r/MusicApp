@@ -88,7 +88,13 @@
         android:layout_centerHorizontal="true"
         android:background="@drawable/button_shape"
         android:text="注        册"
-        android:textSize="20sp"
-        />
+        android:textSize="20sp"/>
+    <TextView
+        android:id="@+id/tv_tourist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="游客访问"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"/>
 
 </RelativeLayout>

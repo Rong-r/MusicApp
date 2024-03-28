@@ -29,6 +29,7 @@ public class LoginActivity extends Activity {
     private CheckBox checkBoxRememberPassword;
     private RadioButton radioButtonAgree;
     private DatabaseHelper databaseHelper;
+    private TextView textViewTourist;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +43,7 @@ public class LoginActivity extends Activity {
         editTextPassword=(EditText)findViewById(R.id.et_password);
         checkBoxRememberPassword=(CheckBox)findViewById(R.id.cb_remember_password);
         radioButtonAgree=(RadioButton) findViewById(R.id.rb_login_agree);
+        textViewTourist=(TextView)findViewById(R.id.tv_tourist);
         boolean isRemember=sharedPreferences.getBoolean("remember_password",false);
         if(isRemember){
             //自动填写信息
@@ -122,6 +124,21 @@ public class LoginActivity extends Activity {
                 }else {
                     Toast.makeText(LoginActivity.this,"请勾选同意协议",Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+        textViewTourist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String userName=sharedPreferences.getString("nowUser","");
+                if(!userName.equals("")){
+                    editor.putString("nowUser","");
+                    editor.putBoolean("remember_password",false);
+                    editor.putString("userName","");
+                    editor.putString("password","");
+                    editor.apply();
+                }
+                Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+                startActivity(intent);
             }
         });
     }
