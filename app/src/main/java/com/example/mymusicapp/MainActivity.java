@@ -92,8 +92,7 @@ public class MainActivity extends AppCompatActivity {
         imageViewBottomCover=(ImageView) findViewById(R.id.iv_bottom_playing_cover);
         imageViewUserIcon=(ImageView) findViewById(R.id.iv_user);
         recyclerViewList=(RecyclerView)findViewById(R.id.recyclerView_home_list);
-        musicsPathsList=databaseHelper.getStoredMusicPath();
-        recyclerViewList.setAdapter(new HomeAdapter(this,musicsPathsList,"all"));
+
         drawerLayout=(DrawerLayout) findViewById(R.id.layout_main);
         linearLayoutUserLove=(LinearLayout)findViewById(R.id.layout_user_loved);
         linearLayoutUserCollect=(LinearLayout)findViewById(R.id.layout_user_collected);
@@ -102,7 +101,42 @@ public class MainActivity extends AppCompatActivity {
         textViewBottomSinger=(TextView)findViewById(R.id.tv_bottom_playing_singer);
         textViewBottomTitle=(TextView)findViewById(R.id.tv_bottom_playing_song_title);
 
+        //musicsPathsList=databaseHelper.getStoredMusicPath();
+        //recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Message message=handler.obtainMessage();
+                Bundle bundle=new Bundle();
+                List<String> pathList=databaseHelper.getStoredMusicPath();
+                String allPathString=new String();
+                for(String item:pathList){
+                    allPathString=allPathString+";;;;;"+item;
+                }
+                bundle.putString("pathString",allPathString);
+                message.setData(bundle);
+                handler.sendMessage(message);
+            }
+        });
+
+
+
     }
+    private Handler handler=new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Bundle bundle=msg.getData();
+            String getPaths=bundle.getString("pathString");
+            String[] paths=getPaths.split(";;;;;");
+            for(String item:paths){
+                musicsPathsList.add(item);
+            }
+            recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
+        }
+    };
+    
+
     private void initListener(){
 
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);

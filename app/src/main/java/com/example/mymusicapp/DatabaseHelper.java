@@ -31,17 +31,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             "filePath TEXT, "+
             "love BOOLEAN DEFAULT 0, " +
             "collect BOOLEAN DEFAULT 0)";
-    private Context mContext;
+
 
     public DatabaseHelper(Context context,String name,SQLiteDatabase.CursorFactory factory,int version) {
         super(context,name,factory,version);
-        mContext=context;
+
     }
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_TABLE_USERS);
         sqLiteDatabase.execSQL(CREATE_TABLE_SONGS);
-        Toast.makeText(mContext,"表格创建成功",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(mContext,"表格创建成功",Toast.LENGTH_SHORT).show();
     }
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {

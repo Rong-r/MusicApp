@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
@@ -109,22 +110,24 @@ public class PlayActivity extends Activity {
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             Bundle bundle=msg.getData();
-            String path=bundle.getString("path");
+
             String nowUser=bundle.getString("nowUser");
+            String title=bundle.getString("title");
+            String singer=bundle.getString("singer");
+            int isLoved=bundle.getInt("isLoved");
+            int isCollected=bundle.getInt("isCollected");
 
-            textViewTitle.setText(databaseHelper.getTitle(path));
-            textViewSinger.setText(databaseHelper.getSinger(path));
-            imageViewCover.setImageBitmap(databaseHelper.getCover(path));
+            textViewTitle.setText(title);
+            textViewSinger.setText(singer);
 
-
-            if(databaseHelper.isLoved(path)==1&&!nowUser.isEmpty()){
+            if(isLoved==1&&!nowUser.isEmpty()){
                 imageViewLove.setImageResource(R.drawable.playing_loved);
                 imageViewLove.setTag("loved");
             }else {
                 imageViewLove.setImageResource(R.drawable.playing_love);
                 imageViewLove.setTag("notLove");
             }
-            if(databaseHelper.isCollected(path)==1&&!nowUser.isEmpty()){
+            if(isCollected==1&&!nowUser.isEmpty()){
                 imageViewCollect.setImageResource(R.drawable.playing_collected);
                 imageViewCollect.setTag("collected");
             }else {
@@ -356,7 +359,7 @@ public class PlayActivity extends Activity {
                 }
             };
             //开始计时任务后的5毫秒，第一次执行task任务，以后每1000毫秒（1s）执行一次
-            timer.schedule(task,5,10000);
+            timer.schedule(task,5,1000);
         }
     }
     private void setInfo(String path){
@@ -366,11 +369,22 @@ public class PlayActivity extends Activity {
             public void run() {
                 //传递用户输入
                 String toPlayPath=path;
+                String title=databaseHelper.getTitle(toPlayPath);
+                String singer=databaseHelper.getSinger(toPlayPath);
+
+                int isLoved=databaseHelper.isLoved(toPlayPath);
+                int isCollected=databaseHelper.isLoved(toPlayPath);
+                imageViewCover.setImageBitmap(databaseHelper.getCover(path));
                 String nowUser=sharedPreferences.getString("nowUser","");
                 Message message=handlerInfo.obtainMessage();
                 Bundle bundle=new Bundle();
-                bundle.putString("path",toPlayPath);
+
                 bundle.putString("nowUser",nowUser);
+                bundle.putString("title",title);
+                bundle.putString("singer",singer);
+                bundle.putInt("isLoved",isLoved);
+                bundle.putInt("isCollected",isCollected);
+
                 //再将bundle封装到msg消息对象中
                 message.setData(bundle);
                 handlerInfo.sendMessage(message);
