@@ -3,12 +3,14 @@ package com.example.mymusicapp;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -21,6 +23,9 @@ import androidx.annotation.Nullable;
 
 import java.io.IOException;
 
+import java.util.Map;
+import java.util.PropertyPermission;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -283,7 +288,19 @@ public class PlayActivity extends Activity {
         imageViewBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SharedPreferences sharedPreferences=sharedPreferences= PreferenceManager.getDefaultSharedPreferences(PlayActivity.this);
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putString("nowPath",filePath);
+                editor.putInt("nowCurrentDuration",mediaPlayer.getCurrentPosition());
+                editor.putString("nowList",fromList);
+                if(mediaPlayer.isPlaying()){
+                    editor.putBoolean("nowIsPlaying",true);
+                }else {
+                    editor.putBoolean("nowIsPlaying",false);
+                }
+                editor.apply();
                 mediaPlayer.stop();
+
                 finish();
             }
         });

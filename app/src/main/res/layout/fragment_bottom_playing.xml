@@ -43,5 +43,6 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="center_vertical"
-        android:src="@drawable/playing_list" />
+        android:src="@drawable/playing_list"
+        android:tag="all"/>
 </LinearLayout>

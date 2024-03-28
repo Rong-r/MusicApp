@@ -111,7 +111,8 @@
         android:layout_height="1dp"
         android:background="#33000000"
         app:layout_constraintTop_toBottomOf="@+id/layout_list_cover"
-        app:layout_constraintBottom_toTopOf="@+id/layout_list_play_all"/>
+        app:layout_constraintBottom_toTopOf="@+id/recyclerView_list"/>
+    <!--
     <LinearLayout
         android:id="@+id/layout_list_play_all"
         android:layout_width="match_parent"
@@ -130,6 +131,7 @@
             android:text="播放全部"
             android:layout_gravity="center_vertical"/>
     </LinearLayout>
+
     <View
         android:id="@+id/list_line3"
         android:layout_width="match_parent"
@@ -137,13 +139,14 @@
         android:background="#33000000"
         app:layout_constraintTop_toBottomOf="@+id/layout_list_play_all"
         app:layout_constraintBottom_toTopOf="@+id/recyclerView_list"/>
+        -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
         app:spanCount="1"
-        app:layout_constraintTop_toBottomOf="@+id/list_line3"
+        app:layout_constraintTop_toBottomOf="@+id/list_line2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>

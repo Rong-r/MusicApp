@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.EditText;
@@ -23,6 +26,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,11 +34,11 @@ public class MainActivity extends AppCompatActivity {
     private static String tag="TAG-MainActivity";
     private DrawerLayout drawerLayout;
     private ImageView imageViewInfo;
-    private ImageView imageViewPlay;
+    private static ImageView imageViewPlay;
     private ImageView imageViewList;
     private ImageView imageViewUserIcon;
     private EditText editTextSearch;
-    private DatabaseHelper databaseHelper;
+    private static DatabaseHelper databaseHelper;
     private RecyclerView recyclerViewList;
     private List<String> musicsPathsList=new ArrayList<>();
     private SharedPreferences sharedPreferences;
@@ -44,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout linearLayoutUserCollect;
     private TextView textViewUser;
     private TextView textViewExit;
+    private static TextView textViewBottomTitle;
+    private static TextView textViewBottomSinger;
+    private static ImageView imageViewBottomCover;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         imageViewPlay=(ImageView)findViewById(R.id.iv_bottom_playing_play);
         imageViewInfo=(ImageView) findViewById(R.id.iv_user_info);
         imageViewList=(ImageView) findViewById(R.id.iv_bottom_playing_list);
+        imageViewBottomCover=(ImageView) findViewById(R.id.iv_bottom_playing_cover);
         imageViewUserIcon=(ImageView) findViewById(R.id.iv_user);
         recyclerViewList=(RecyclerView)findViewById(R.id.recyclerView_home_list);
         musicsPathsList=databaseHelper.getStoredMusicPath();
@@ -90,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutUserCollect=(LinearLayout)findViewById(R.id.layout_user_collected);
         textViewUser=(TextView)findViewById(R.id.tv_user_id);
         textViewExit=(TextView)findViewById(R.id.tv_exit_login);
+        textViewBottomSinger=(TextView)findViewById(R.id.tv_bottom_playing_singer);
+        textViewBottomTitle=(TextView)findViewById(R.id.tv_bottom_playing_song_title);
+
     }
     private void initListener(){
 
@@ -194,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(MainActivity.this, ListActivity.class);
-                intent.putExtra("checkList","collected");
+                String listName=imageViewList.getTag().toString();
+                intent.putExtra("checkList",listName);
                 startActivity(intent);
             }
         });
@@ -203,8 +215,88 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (mediaPlayer!=null){
+            editor.putInt("nowCurrentDuration",mediaPlayer.getCurrentPosition());
+            if(mediaPlayer.isPlaying()){
+                editor.putBoolean("nowIsPlaying",true);
+            }else {
+                editor.putBoolean("nowIsPlaying",false);
+            }
+            editor.apply();
             mediaPlayer.stop();
             mediaPlayer.release();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String nowPath=sharedPreferences.getString("nowPath","");
+        int nowCurrentDuration=sharedPreferences.getInt("nowCurrentDuration",0);
+        String nowList=sharedPreferences.getString("nowList","");
+        Boolean nowIsPlaying=sharedPreferences.getBoolean("nowIsPlaying",true);
+        if (!nowPath.isEmpty()){
+            setInfo(nowPath,nowIsPlaying);
+            setMediaPlayer(nowPath,nowCurrentDuration);
+        }
+        if(!nowList.isEmpty()){
+            imageViewList.setTag(nowList);
+        }
+    }
+    private void setMediaPlayer(String path,int currentDuration){
+        try {
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+            }
+            mediaPlayer.reset();//复位播放器
+            mediaPlayer.setDataSource(path);
+            mediaPlayer.prepare();//播放准备
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    mediaPlayer.seekTo(currentDuration);
+                    mediaPlayer.start();//播放开始
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static Handler handlerInfo=new Handler(Looper.myLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Bundle bundle=msg.getData();
+            String path=bundle.getString("path");
+            Boolean isPlaying=bundle.getBoolean("isPlaying");
+
+            textViewBottomTitle.setText(databaseHelper.getTitle(path));
+            textViewBottomSinger.setText(databaseHelper.getSinger(path));
+            imageViewBottomCover.setImageBitmap(databaseHelper.getCover(path));
+
+            if(isPlaying){
+                imageViewPlay.setImageResource(R.drawable.playing_to_pause);
+                imageViewPlay.setTag("toPause");
+            }else {
+                imageViewPlay.setImageResource(R.drawable.playing_to_play);
+                imageViewPlay.setTag("toPlay");
+            }
+        }
+    };
+    private void setInfo(String path,Boolean isPlaying){
+        //开启子线程
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //传递用户输入
+                String toPlayPath=path;
+                Message message=handlerInfo.obtainMessage();
+                Bundle bundle=new Bundle();
+                bundle.putString("path",toPlayPath);
+                bundle.putBoolean("isPlaying",isPlaying);
+                //再将bundle封装到msg消息对象中
+                message.setData(bundle);
+                handlerInfo.sendMessage(message);
+            }
+        }).start();
     }
 }
