@@ -20,7 +20,8 @@ public class RegisterActivity extends Activity {
     private EditText editTextPassword;
     private EditText editTextPasswordConfirm;
     private Button buttonRegister;
-    private DatabaseHelper databaseHelper;
+    //private DatabaseHelper databaseHelper;
+    private DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     private TextView textViewTourist;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
@@ -48,8 +49,9 @@ public class RegisterActivity extends Activity {
                     Toast.makeText(RegisterActivity.this,"请输入完整信息",Toast.LENGTH_SHORT).show();
                 }else if(passwordConfirm.equals(password)){
                     //注册用户
-                    databaseHelper=new DatabaseHelper(RegisterActivity.this,"SongsApp.db",null,1);
-                    SQLiteDatabase db=databaseHelper.getWritableDatabase();
+                    //databaseHelper=new DatabaseHelper(RegisterActivity.this,"SongsApp.db",null,1);
+                    //SQLiteDatabase db=databaseHelper.getWritableDatabase();
+                    SQLiteDatabase db=databaseManager.getSQLiteDatabase();
                     ContentValues values=new ContentValues();
                     values.put("userName",userName);
                     values.put("password",password);

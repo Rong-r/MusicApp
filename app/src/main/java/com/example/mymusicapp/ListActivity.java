@@ -26,6 +26,7 @@ public class ListActivity extends Activity {
     private ImageView imageViewListIcon;
     private List<String> musicList;
     //private DatabaseHelper databaseHelper;
+    private DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,17 +63,17 @@ public class ListActivity extends Activity {
         List<String> listToShow=new ArrayList<>();
         if(listName.equals("collected")){
            //listToShow=databaseHelper.getCollectedMusicPath();
-            listToShow.addAll(DatabaseManager.getDatabaseManager().getMusicListCollected());
+            listToShow.addAll(databaseManager.getMusicListCollected());
             textViewListTitle.setText("我的收藏");
             imageViewListIcon.setImageResource(R.drawable.playing_loved);
         } else if (listName.equals("loved")) {
             //listToShow=databaseHelper.getLovedMusicPath();
-            listToShow.addAll(DatabaseManager.getDatabaseManager().getMusicListLoved());
+            listToShow.addAll(databaseManager.getMusicListLoved());
             textViewListTitle.setText("我的喜爱");
             imageViewListIcon.setImageResource(R.drawable.playing_collected);
         }else {
             //listToShow=databaseHelper.getStoredMusicPath();
-            listToShow.addAll(DatabaseManager.getDatabaseManager().getMusicListAll());
+            listToShow.addAll(databaseManager.getMusicListAll());
             textViewListTitle.setText("全部歌曲");
         }
         return listToShow;

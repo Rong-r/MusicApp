@@ -126,8 +126,9 @@ public class SearchActivity extends AppCompatActivity {
         editor.apply();
     }
     private boolean canSearch(String content) {
-        DatabaseHelper databaseHelper=new DatabaseHelper(SearchActivity.this,"SongsApp.db",null,1);
-        List<String> musicsPathsList=databaseHelper.getStoredMusicPath();
+        //DatabaseHelper databaseHelper=new DatabaseHelper(SearchActivity.this,"SongsApp.db",null,1);
+        //List<String> musicsPathsList=databaseHelper.getStoredMusicPath();
+        List<String> musicsPathsList=DatabaseManager.getDatabaseManager().getMusicListAll();
         // 使用空格作为分隔符来分割字符串
         String[] tokens = content.split(" ");
         // 筛选并组成新的列表
