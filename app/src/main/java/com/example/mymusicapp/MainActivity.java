@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout linearLayoutUserCollect;
     private TextView textViewUser;
     private TextView textViewExit;
+    private static DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     @SuppressLint("StaticFieldLeak")
     private static TextView textViewBottomTitle;
     @SuppressLint("StaticFieldLeak")
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    DatabaseManager.getDatabaseManager().initDatabase();
+                    databaseManager.initDatabase();
                 }
             }).start();
         }
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<String> tempList=DatabaseManager.getDatabaseManager().getMusicListAll();
+                List<String> tempList=databaseManager.getMusicListAll();
                 musicsPathsList.addAll(tempList);
                 Message message=handler.obtainMessage();
 //                Bundle bundle=new Bundle();
@@ -321,9 +322,9 @@ public class MainActivity extends AppCompatActivity {
             Bundle bundle=msg.getData();
             String path=bundle.getString("path");
             boolean isPlaying=bundle.getBoolean("isPlaying");
-            String title=DatabaseManager.getDatabaseManager().getTitle(path);
-            String singer=DatabaseManager.getDatabaseManager().getSinger(path);
-            Bitmap cover=DatabaseManager.getDatabaseManager().getCover(path);
+            String title=databaseManager.getTitle(path);
+            String singer=databaseManager.getSinger(path);
+            Bitmap cover=databaseManager.getCover(path);
             textViewBottomTitle.setText(title);
             textViewBottomSinger.setText(singer);
             imageViewBottomCover.setImageBitmap(cover);

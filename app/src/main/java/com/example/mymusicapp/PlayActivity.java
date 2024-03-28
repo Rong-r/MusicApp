@@ -33,7 +33,7 @@ import java.util.TimerTask;
 
 public class PlayActivity extends Activity {
     private static String tag="TAG-PlayActivity";
-    private static DatabaseHelper databaseHelper;
+    //private static DatabaseHelper databaseHelper;
     private ImageView imageViewPlaying,imageViewLast,imageViewNext;
     private ImageView imageViewBack;
     private static ImageView imageViewLove;
@@ -49,6 +49,7 @@ public class PlayActivity extends Activity {
     private ObjectAnimator animator;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     public static Handler handler=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -162,7 +163,7 @@ public class PlayActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playing);
-        databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
+        //databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
         editor=sharedPreferences.edit();
         intentCome=getIntent();
@@ -220,7 +221,7 @@ public class PlayActivity extends Activity {
             public void onClick(View view) {
                 mediaPlayer.pause();
                 animator.pause();
-                String newFilePath=databaseHelper.getLastFilePath(filePath,fromList);
+                String newFilePath=databaseManager.getLastFilePath(filePath,fromList);
                 Log.d("TAG","newFilePath: "+newFilePath);
                 filePath=newFilePath;
                 Log.d("TAG","filePathNew: "+newFilePath);
@@ -232,7 +233,8 @@ public class PlayActivity extends Activity {
             public void onClick(View view) {
                 mediaPlayer.pause();
                 animator.pause();
-                String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
+                //String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
+                String newFilePath=databaseManager.getNextFilePath(filePath,fromList);
                 Log.d("TAG","newFilePath: "+newFilePath);
                 filePath=newFilePath;
                 Log.d("TAG","filePathNew: "+filePath);
@@ -247,7 +249,8 @@ public class PlayActivity extends Activity {
                     animator.pause();//停止播放动画
                     mediaPlayer.pause();
                     animator.pause();
-                    String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
+                    //String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
+                    String newFilePath=databaseManager.getNextFilePath(filePath,fromList);
                     Log.d("TAG","newFilePath: "+newFilePath);
                     filePath=newFilePath;
                     Log.d("TAG","filePathNew: "+filePath);
@@ -272,11 +275,13 @@ public class PlayActivity extends Activity {
             public void onClick(View view) {
                 String nowUser=sharedPreferences.getString("nowUser","");
                 if(imageViewLove.getTag().equals("notLove")&&!nowUser.isEmpty()){
-                    databaseHelper.setLoved(filePath);
+                    databaseManager.setLoved(filePath);
+                    //databaseHelper.setLoved(filePath);
                     imageViewLove.setImageResource(R.drawable.playing_loved);
                     imageViewLove.setTag("loved");
                 }else if(!nowUser.isEmpty()){
-                    databaseHelper.setLove(filePath);
+                    databaseManager.setLove(filePath);
+                    //databaseHelper.setLove(filePath);
                     imageViewLove.setImageResource(R.drawable.playing_love);
                     imageViewLove.setTag("notLove");
                 }
@@ -289,11 +294,13 @@ public class PlayActivity extends Activity {
             @Override
             public void onClick(View view) {
                 if(imageViewCollect.getTag().equals("notCollect")){
-                    databaseHelper.setCollected(filePath);
+                    databaseManager.setCollected(filePath);
+                    //databaseHelper.setCollected(filePath);
                     imageViewCollect.setImageResource(R.drawable.playing_collected);
                     imageViewCollect.setTag("collected");
                 }else {
-                    databaseHelper.setCollect(filePath);
+                    databaseManager.setCollect(filePath);
+                    //databaseHelper.setCollect(filePath);
                     imageViewCollect.setImageResource(R.drawable.playing_collect);
                     imageViewCollect.setTag("notCollect");
                 }
@@ -369,12 +376,17 @@ public class PlayActivity extends Activity {
             public void run() {
                 //传递用户输入
                 String toPlayPath=path;
-                String title=databaseHelper.getTitle(toPlayPath);
-                String singer=databaseHelper.getSinger(toPlayPath);
-
-                int isLoved=databaseHelper.isLoved(toPlayPath);
-                int isCollected=databaseHelper.isLoved(toPlayPath);
-                imageViewCover.setImageBitmap(databaseHelper.getCover(path));
+//                String title=databaseHelper.getTitle(toPlayPath);
+//                String singer=databaseHelper.getSinger(toPlayPath);
+                String title=databaseManager.getTitle(path);
+                String singer=databaseManager.getSinger(path);
+                Bitmap cover=databaseManager.getCover(path);
+                imageViewCover.setImageBitmap(cover);
+                int isLoved=databaseManager.isLoved(path);
+                int isCollected=databaseManager.isCollected(path);
+//                int isLoved=databaseHelper.isLoved(toPlayPath);
+//                int isCollected=databaseHelper.isLoved(toPlayPath);
+//                imageViewCover.setImageBitmap(databaseHelper.getCover(path));
                 String nowUser=sharedPreferences.getString("nowUser","");
                 Message message=handlerInfo.obtainMessage();
                 Bundle bundle=new Bundle();

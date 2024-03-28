@@ -64,4 +64,28 @@ public class DatabaseManager {
     public Bitmap getCover(String path){
         return databaseHelper.getCover(path);
     }
+    public String getLastFilePath(String filePath,String fileName){
+        return databaseHelper.getLastFilePath(filePath,fileName);
+    }
+    public String getNextFilePath(String filePath,String fileName){
+        return databaseHelper.getNextFilePath(filePath,fileName);
+    }
+    public int isLoved(String filePath){
+        return databaseHelper.isLoved(filePath);
+    }
+    public void setLoved(String filePath){
+        databaseHelper.setLoved(filePath);
+    }
+    public void setLove(String filePath){
+        databaseHelper.setLove(filePath);
+    }
+    public int isCollected(String filePath){
+        return databaseHelper.isCollected(filePath);
+    }
+    public void setCollected(String filePath){
+        databaseHelper.setCollected(filePath);
+    }
+    public void setCollect(String filePath){
+        databaseHelper.setCollect(filePath);
+    }
 }
