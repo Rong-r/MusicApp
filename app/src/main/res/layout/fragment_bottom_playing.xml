@@ -17,7 +17,7 @@
             android:id="@+id/tv_bottom_playing_song_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="歌名"
+            android:text="暂无播放"
             android:textSize="14sp" />
         <TextView
             android:id="@+id/tv_bottom_playing_singer"
@@ -27,7 +27,7 @@
             android:layout_marginTop="10dp"
             android:alpha="0.6"
             android:singleLine="true"
-            android:text="歌手"
+            android:text="暂无播放"
             android:textSize="12sp" />
     </RelativeLayout>
     <ImageView
