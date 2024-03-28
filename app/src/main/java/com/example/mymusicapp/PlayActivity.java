@@ -48,7 +48,7 @@ public class PlayActivity extends Activity {
     private ObjectAnimator animator;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
-    public static Handler handler=new Handler(Looper.myLooper()){
+    public static Handler handler=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -76,7 +76,7 @@ public class PlayActivity extends Activity {
             textViewCurrentTime.setText(strMinute+":"+strSecond);
         }
     };
-    public static Handler handlerDuration=new Handler(Looper.myLooper()){
+    public static Handler handlerDuration=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -104,7 +104,7 @@ public class PlayActivity extends Activity {
             textViewDuration.setText(strMinute+":"+strSecond);
         }
     };
-    public static Handler handlerInfo=new Handler(Looper.myLooper()){
+    public static Handler handlerInfo=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);

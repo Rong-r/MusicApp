@@ -105,11 +105,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //获取本地音乐文件并存储到数据库中
     public static void initSongsDB(Context context) {
         DatabaseHelper helper = new DatabaseHelper(context,"SongsApp.db",null,1);
+        File sdCardRoot = Environment.getExternalStorageDirectory();
+        String sdCardRootPath = sdCardRoot.getAbsolutePath();
         // 获取外部存储的音乐目录
-        File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
-        Log.d("TAG","musicDirectory: "+musicDirectory.toString());
+        //File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.);
+        //Log.d("TAG","musicDirectory: "+musicDirectory.toString());
         // 获取本地音乐文件路径
-        List<String> musicPaths = getMusicPaths(musicDirectory);
+        List<String> musicPaths = getMusicPaths(sdCardRoot);
+        Log.d("TAG","sdCardRoot: "+sdCardRoot.toString());
+        Log.d("TAG","musicPaths: "+musicPaths.toString());
+
         Log.d("TAG","musicPaths: "+musicPaths);
         List<String> musicPathsStored = helper.getStoredMusicPath();
         //有内容变动，则删库更新
