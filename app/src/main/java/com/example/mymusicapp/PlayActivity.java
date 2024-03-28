@@ -1,6 +1,7 @@
 package com.example.mymusicapp;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,32 +26,29 @@ import androidx.annotation.Nullable;
 
 import java.io.IOException;
 
-import java.util.Map;
-import java.util.PropertyPermission;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class PlayActivity extends Activity {
-    private static String tag="TAG-PlayActivity";
-    //private static DatabaseHelper databaseHelper;
-    private ImageView imageViewPlaying,imageViewLast,imageViewNext;
-    private ImageView imageViewBack;
+    private ImageView imageViewPlaying;
+    @SuppressLint("StaticFieldLeak")
     private static ImageView imageViewLove;
+    @SuppressLint("StaticFieldLeak")
     private static ImageView imageViewCollect;
-    private ImageView imageViewList;
+    @SuppressLint("StaticFieldLeak")
     private static ImageView imageViewCover;
+    @SuppressLint("StaticFieldLeak")
     private static SeekBar seekBar;
+    @SuppressLint("StaticFieldLeak")
     private static TextView textViewDuration,textViewCurrentTime,textViewTitle,textViewSinger;
-    private Intent intentCome;
     private String filePath,fromList;
     private MediaPlayer mediaPlayer;
     private Timer timer;
     private ObjectAnimator animator;
     private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
-    private DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
+    private final DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     public static Handler handler=new Handler(Looper.getMainLooper()){
+        @SuppressLint("SetTextI18n")
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -79,6 +77,7 @@ public class PlayActivity extends Activity {
         }
     };
     public static Handler handlerDuration=new Handler(Looper.getMainLooper()){
+        @SuppressLint("SetTextI18n")
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
@@ -121,14 +120,14 @@ public class PlayActivity extends Activity {
             textViewTitle.setText(title);
             textViewSinger.setText(singer);
 
-            if(isLoved==1&&!nowUser.isEmpty()){
+            if(isLoved==1&&nowUser!=null){
                 imageViewLove.setImageResource(R.drawable.playing_loved);
                 imageViewLove.setTag("loved");
             }else {
                 imageViewLove.setImageResource(R.drawable.playing_love);
                 imageViewLove.setTag("notLove");
             }
-            if(isCollected==1&&!nowUser.isEmpty()){
+            if(isCollected==1&&nowUser!=null){
                 imageViewCollect.setImageResource(R.drawable.playing_collected);
                 imageViewCollect.setTag("collected");
             }else {
@@ -148,7 +147,7 @@ public class PlayActivity extends Activity {
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {
-                    setDuration(filePath);
+                    setDuration();
                     addTimer();
                     mediaPlayer.start();//播放开始
                     animator.start();
@@ -163,17 +162,16 @@ public class PlayActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playing);
-        //databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
-        editor=sharedPreferences.edit();
-        intentCome=getIntent();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Intent intentCome = getIntent();
         imageViewPlaying=(ImageView) findViewById(R.id.iv_playing);
-        imageViewLast=(ImageView) findViewById(R.id.iv_playing_last);
-        imageViewNext=(ImageView) findViewById(R.id.iv_playing_next);
+        ImageView imageViewLast = (ImageView) findViewById(R.id.iv_playing_last);
+        ImageView imageViewNext = (ImageView) findViewById(R.id.iv_playing_next);
         imageViewLove=(ImageView) findViewById(R.id.iv_playing_love);
         imageViewCollect=(ImageView) findViewById(R.id.iv_playing_collect);
-        imageViewBack=(ImageView)findViewById(R.id.iv_playing_back);
-        imageViewList=(ImageView)findViewById(R.id.iv_playing_list);
+        ImageView imageViewBack = (ImageView) findViewById(R.id.iv_playing_back);
+        ImageView imageViewList = (ImageView) findViewById(R.id.iv_playing_list);
         imageViewCover=(ImageView)findViewById(R.id.iv_playing_cover);
         seekBar=(SeekBar)findViewById(R.id.seekbar_playing);
         textViewCurrentTime=(TextView)findViewById(R.id.music_duration_played);
@@ -181,10 +179,9 @@ public class PlayActivity extends Activity {
         textViewTitle=(TextView)findViewById(R.id.tv_playing_song_title);
         textViewSinger=(TextView)findViewById(R.id.tv_playing_singer);
 
-        fromList=intentCome.getStringExtra("checkList");
-        Log.d("TAG",fromList);
-        filePath=intentCome.getStringExtra("musicPath");
-        Log.d("TAG",filePath);
+        fromList= intentCome.getStringExtra("checkList");
+
+        filePath= intentCome.getStringExtra("musicPath");
         setInfo(filePath);
         setMediaPlayer(filePath);
 
@@ -233,7 +230,6 @@ public class PlayActivity extends Activity {
             public void onClick(View view) {
                 mediaPlayer.pause();
                 animator.pause();
-                //String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
                 String newFilePath=databaseManager.getNextFilePath(filePath,fromList);
                 Log.d("TAG","newFilePath: "+newFilePath);
                 filePath=newFilePath;
@@ -249,7 +245,6 @@ public class PlayActivity extends Activity {
                     animator.pause();//停止播放动画
                     mediaPlayer.pause();
                     animator.pause();
-                    //String newFilePath=databaseHelper.getNextFilePath(filePath,fromList);
                     String newFilePath=databaseManager.getNextFilePath(filePath,fromList);
                     Log.d("TAG","newFilePath: "+newFilePath);
                     filePath=newFilePath;
@@ -315,11 +310,7 @@ public class PlayActivity extends Activity {
                 editor.putInt("nowCurrentDuration",mediaPlayer.getCurrentPosition());
                 editor.putString("nowList",fromList);
                 editor.putString("fromActivity","PlayActivity");
-                if(mediaPlayer.isPlaying()){
-                    editor.putBoolean("nowIsPlaying",true);
-                }else {
-                    editor.putBoolean("nowIsPlaying",false);
-                }
+                editor.putBoolean("nowIsPlaying", mediaPlayer.isPlaying());
                 editor.apply();
                 Log.d("TAG","post nowIsPlaying:"+mediaPlayer.isPlaying());
                 mediaPlayer.stop();
@@ -375,35 +366,27 @@ public class PlayActivity extends Activity {
             @Override
             public void run() {
                 //传递用户输入
-                String toPlayPath=path;
-//                String title=databaseHelper.getTitle(toPlayPath);
-//                String singer=databaseHelper.getSinger(toPlayPath);
                 String title=databaseManager.getTitle(path);
                 String singer=databaseManager.getSinger(path);
                 Bitmap cover=databaseManager.getCover(path);
                 imageViewCover.setImageBitmap(cover);
                 int isLoved=databaseManager.isLoved(path);
                 int isCollected=databaseManager.isCollected(path);
-//                int isLoved=databaseHelper.isLoved(toPlayPath);
-//                int isCollected=databaseHelper.isLoved(toPlayPath);
-//                imageViewCover.setImageBitmap(databaseHelper.getCover(path));
                 String nowUser=sharedPreferences.getString("nowUser","");
                 Message message=handlerInfo.obtainMessage();
                 Bundle bundle=new Bundle();
-
                 bundle.putString("nowUser",nowUser);
                 bundle.putString("title",title);
                 bundle.putString("singer",singer);
                 bundle.putInt("isLoved",isLoved);
                 bundle.putInt("isCollected",isCollected);
-
                 //再将bundle封装到msg消息对象中
                 message.setData(bundle);
                 handlerInfo.sendMessage(message);
             }
         }).start();
     }
-    private void setDuration(String path){
+    private void setDuration(){
         //开启子线程
         new Thread(new Runnable() {
             @Override

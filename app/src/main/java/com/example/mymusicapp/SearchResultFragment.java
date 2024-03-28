@@ -14,16 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchResultFragment extends Fragment {
-    private RecyclerView recyclerView;
-    private DatabaseHelper databaseHelper;
-    private List<String> musicsPathsList;
     public SearchResultFragment(){
         super(R.layout.fragment_search_result);
     }
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        databaseHelper=new DatabaseHelper(getActivity(),"SongsApp.db",null,1);
-        musicsPathsList=databaseHelper.getStoredMusicPath();
+        List<String> musicsPathsList = DatabaseManager.getDatabaseManager().getMusicListAll();
         Bundle bundle=requireArguments();
         String searchContent=bundle.getString("searchContent");
         // 使用空格作为分隔符来分割字符串
@@ -38,9 +34,10 @@ public class SearchResultFragment extends Fragment {
                 }
             }
         }
-        recyclerView=getActivity().findViewById(R.id.recyclerView_search_result);
-        recyclerView.setAdapter(new HomeAdapter(getActivity(),resultPathsList,""));
-
+        if(getActivity()!=null){
+            RecyclerView recyclerView = getActivity().findViewById(R.id.recyclerView_search_result);
+            recyclerView.setAdapter(new HomeAdapter(getActivity(),resultPathsList,""));
+        }
         //下拉时触发SwipeReFreshLayout的下拉动画
         SwipeRefreshLayout swipeRefreshLayout=getActivity().findViewById(R.id.swipe_refresh_layout_result);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

@@ -2,7 +2,6 @@ package com.example.mymusicapp;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -10,9 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -104,26 +101,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //获取本地音乐文件并存储到数据库中
     public static void initSongsDB(Context context) {
-        DatabaseHelper helper = new DatabaseHelper(context,"SongsApp.db",null,1);
+        //DatabaseHelper helper = new DatabaseHelper(context,"SongsApp.db",null,1);
+        DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
         File sdCardRoot = Environment.getExternalStorageDirectory();
-        String sdCardRootPath = sdCardRoot.getAbsolutePath();
-        // 获取外部存储的音乐目录
-        //File musicDirectory = Environment.getExternalStoragePublicDirectory(Environment.);
-        //Log.d("TAG","musicDirectory: "+musicDirectory.toString());
         // 获取本地音乐文件路径
         List<String> musicPaths = getMusicPaths(sdCardRoot);
         Log.d("TAG","sdCardRoot: "+sdCardRoot.toString());
         Log.d("TAG","musicPaths: "+musicPaths.toString());
 
         Log.d("TAG","musicPaths: "+musicPaths);
-        List<String> musicPathsStored = helper.getStoredMusicPath();
+        List<String> musicPathsStored = databaseManager.getMusicListAll();
         //有内容变动，则删库更新
         if(musicPaths.size()!=musicPathsStored.size()){
-            SQLiteDatabase sqLiteDatabase=helper.getWritableDatabase();
+            SQLiteDatabase sqLiteDatabase=databaseManager.getSQLiteDatabase();
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS Songs");
             sqLiteDatabase.execSQL(CREATE_TABLE_SONGS);
             // 存储音乐文件路径到数据库
-            helper.insertMusicFilesInfo(musicPaths);
+            databaseManager.insertMusicFilesInfo(musicPaths);
         }
     }
     //获取指定目录下的音乐文件的路径
@@ -194,8 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         MediaMetadataRetriever mmr=new MediaMetadataRetriever();
         mmr.setDataSource(filePath);
         byte[] cover = mmr.getEmbeddedPicture();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(cover, 0, cover.length);
-        return bitmap;
+        return BitmapFactory.decodeByteArray(cover, 0, cover.length);
     }
     public void setLoved(String filePath){
         SQLiteDatabase db = this.getReadableDatabase();

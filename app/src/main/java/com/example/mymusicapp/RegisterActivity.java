@@ -19,13 +19,8 @@ public class RegisterActivity extends Activity {
     private EditText editTextUserName;
     private EditText editTextPassword;
     private EditText editTextPasswordConfirm;
-    private Button buttonRegister;
-    //private DatabaseHelper databaseHelper;
-    private DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
-    private TextView textViewTourist;
-    private SharedPreferences sharedPreferences;
+    private final DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     private SharedPreferences.Editor editor;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,11 +29,11 @@ public class RegisterActivity extends Activity {
         editTextUserName=(EditText) findViewById(R.id.et_register_user_name);
         editTextPassword=(EditText) findViewById(R.id.et_register_password);
         editTextPasswordConfirm=(EditText) findViewById(R.id.et_register_password_confirm);
-        buttonRegister=(Button) findViewById(R.id.bt_register);
-        textViewTourist=(TextView)findViewById(R.id.tv_tourist);
-        sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
-        editor=sharedPreferences.edit();
-        String userName=sharedPreferences.getString("nowUser","");
+        Button buttonRegister = (Button) findViewById(R.id.bt_register);
+        TextView textViewTourist = (TextView) findViewById(R.id.tv_tourist);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        editor= sharedPreferences.edit();
+        String userName= sharedPreferences.getString("nowUser","");
         buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,8 +44,6 @@ public class RegisterActivity extends Activity {
                     Toast.makeText(RegisterActivity.this,"请输入完整信息",Toast.LENGTH_SHORT).show();
                 }else if(passwordConfirm.equals(password)){
                     //注册用户
-                    //databaseHelper=new DatabaseHelper(RegisterActivity.this,"SongsApp.db",null,1);
-                    //SQLiteDatabase db=databaseHelper.getWritableDatabase();
                     SQLiteDatabase db=databaseManager.getSQLiteDatabase();
                     ContentValues values=new ContentValues();
                     values.put("userName",userName);

@@ -1,5 +1,6 @@
 package com.example.mymusicapp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,32 +23,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class LoginActivity extends Activity {
-    private Button buttonRegister;
-    private Button buttonLogin;
-    private TextView textViewAgreeUser;
-    private TextView textViewAgreePrivacy;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private EditText editTextUserName;
     private EditText editTextPassword;
     private CheckBox checkBoxRememberPassword;
     private RadioButton radioButtonAgree;
-    //private DatabaseHelper databaseHelper;
-    private TextView textViewTourist;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
-        buttonRegister=(Button) findViewById(R.id.bt_enroll);
-        buttonLogin=(Button) findViewById(R.id.bt_login);
-        textViewAgreeUser=(TextView)findViewById(R.id.tv_login_agree_user);
-        textViewAgreePrivacy=(TextView)findViewById(R.id.tv_login_agree_privacy);
+        Button buttonRegister = (Button) findViewById(R.id.bt_enroll);
+        Button buttonLogin = (Button) findViewById(R.id.bt_login);
+        TextView textViewAgreeUser = (TextView) findViewById(R.id.tv_login_agree_user);
+        TextView textViewAgreePrivacy = (TextView) findViewById(R.id.tv_login_agree_privacy);
         editTextUserName=(EditText)findViewById(R.id.et_user_name);
         editTextPassword=(EditText)findViewById(R.id.et_password);
         checkBoxRememberPassword=(CheckBox)findViewById(R.id.cb_remember_password);
         radioButtonAgree=(RadioButton) findViewById(R.id.rb_login_agree);
-        textViewTourist=(TextView)findViewById(R.id.tv_tourist);
+        TextView textViewTourist = (TextView) findViewById(R.id.tv_tourist);
         boolean isRemember=sharedPreferences.getBoolean("remember_password",false);
         if(isRemember){
             //自动填写信息
@@ -92,13 +87,11 @@ public class LoginActivity extends Activity {
                                 Message message=handler.obtainMessage();
                                 Bundle bundle=new Bundle();
                                 //核对登录信息
-                                //databaseHelper=new DatabaseHelper(LoginActivity.this,"SongsApp.db",null,1);
-                                //SQLiteDatabase db=databaseHelper.getWritableDatabase();
                                 SQLiteDatabase db=DatabaseManager.getDatabaseManager().getSQLiteDatabase();
-                                Boolean isTrue=new Boolean(false);
+                                Boolean isTrue= Boolean.FALSE;
                                 String selection="userName = ?";
                                 String[] selectionArgs={userName};
-                                Cursor cursor=db.query("Users",null,selection,selectionArgs,null,null,null);
+                                @SuppressLint("Recycle") Cursor cursor=db.query("Users",null,selection,selectionArgs,null,null,null);
                                 //判断根据用户名筛选出的密码中是否有符合的
                                 if(cursor.moveToFirst()){
                                     do{

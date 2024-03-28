@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class SearchHistoryFragment extends Fragment {
-    private RecyclerView recyclerViewHistory;
     public SearchHistoryFragment(){
         super(R.layout.fragment_search_history);
     }
@@ -17,7 +16,9 @@ public class SearchHistoryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        recyclerViewHistory=(RecyclerView)getActivity().findViewById(R.id.recyclerView_search_history);
-        recyclerViewHistory.setAdapter(new SearchHistoryAdapter(getActivity()));
+        if(getActivity()!=null){
+            RecyclerView recyclerViewHistory = (RecyclerView) getActivity().findViewById(R.id.recyclerView_search_history);
+            recyclerViewHistory.setAdapter(new SearchHistoryAdapter(getActivity()));
+        }
     }
 }

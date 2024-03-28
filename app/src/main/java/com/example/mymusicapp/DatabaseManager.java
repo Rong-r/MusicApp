@@ -4,7 +4,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager {
@@ -12,9 +11,8 @@ public class DatabaseManager {
     private static final String MUSIC_LIST_LOVED="MUSIC_LIST_LOVED";
     private static final String MUSIC_LIST_COLLECTED="MUSIC_LIST_COLLECTED";
     private static volatile DatabaseManager databaseManager=new DatabaseManager();
-
     private ConcurrentHashMap<String, List<String>> cacheMusicLists=new ConcurrentHashMap<>();
-    private  DatabaseHelper databaseHelper=new DatabaseHelper(MainApplication.getContext(),"SongsApp.db",null,1);
+    private final DatabaseHelper databaseHelper=new DatabaseHelper(MainApplication.getContext(),"SongsApp.db",null,1);
 
     public static DatabaseManager getDatabaseManager(){
         return databaseManager;
@@ -87,5 +85,8 @@ public class DatabaseManager {
     }
     public void setCollect(String filePath){
         databaseHelper.setCollect(filePath);
+    }
+    public void insertMusicFilesInfo(List<String> filePaths){
+        databaseHelper.insertMusicFilesInfo(filePaths);
     }
 }

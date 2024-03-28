@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageViewList;
     private ImageView imageViewUserIcon;
     private EditText editTextSearch;
-    //private static DatabaseHelper databaseHelper;
     private RecyclerView recyclerViewList;
     private final List<String> musicsPathsList=new ArrayList<>();
     private SharedPreferences sharedPreferences;
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
         permission();
         initView();
         initListener();
@@ -76,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.READ_MEDIA_IMAGES,Manifest.permission.READ_MEDIA_VIDEO},200);
         }else {
             Toast.makeText(this,"SD权限已被授予",Toast.LENGTH_SHORT).show();
-            //databaseHelper.initSongsDB(this);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -112,23 +109,12 @@ public class MainActivity extends AppCompatActivity {
         textViewExit=(TextView)findViewById(R.id.tv_exit_login);
         textViewBottomSinger=(TextView)findViewById(R.id.tv_bottom_playing_singer);
         textViewBottomTitle=(TextView)findViewById(R.id.tv_bottom_playing_song_title);
-
-        //musicsPathsList=databaseHelper.getStoredMusicPath();
-        recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
         new Thread(new Runnable() {
             @Override
             public void run() {
                 List<String> tempList=databaseManager.getMusicListAll();
                 musicsPathsList.addAll(tempList);
                 Message message=handler.obtainMessage();
-//                Bundle bundle=new Bundle();
-//                List<String> pathList=databaseHelper.getStoredMusicPath();
-//                String allPathString=new String();
-//                for(String item:pathList){
-//                    allPathString=allPathString+";;;;;"+item;
-//                }
-//                bundle.putString("pathString",allPathString);
-//                message.setData(bundle);
                 message.what=1;
                 handler.sendMessage(message);
             }
@@ -143,18 +129,8 @@ public class MainActivity extends AppCompatActivity {
             if(getInt==1){
                 recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
             }
-//            Bundle bundle=msg.getData();
-//            String getPaths=bundle.getString("pathString");
-//            String[] paths=getPaths.split(";;;;;");
-//            for(String item:paths){
-//                musicsPathsList.add(item);
-//            }
-//            recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
         }
     };
-
-
-    
 
     private void initListener(){
 
@@ -272,11 +248,16 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
+        if(handler!=null){
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
+        mediaPlayer.stop();
+        mediaPlayer.release();
         String fromActivity = sharedPreferences.getString("fromActivity", "");
         Log.d("TAG", "get fromActivity:" + fromActivity);
         if (fromActivity.equals("PlayActivity")) {
@@ -328,11 +309,6 @@ public class MainActivity extends AppCompatActivity {
             textViewBottomTitle.setText(title);
             textViewBottomSinger.setText(singer);
             imageViewBottomCover.setImageBitmap(cover);
-
-//            textViewBottomTitle.setText(databaseHelper.getTitle(path));
-//            textViewBottomSinger.setText(databaseHelper.getSinger(path));
-//            imageViewBottomCover.setImageBitmap(databaseHelper.getCover(path));
-
             if(isPlaying){
                 imageViewPlay.setImageResource(R.drawable.playing_to_pause);
                 imageViewPlay.setTag("toPause");
