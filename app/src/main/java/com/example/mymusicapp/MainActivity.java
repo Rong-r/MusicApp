@@ -1,9 +1,11 @@
 package com.example.mymusicapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
@@ -32,16 +34,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private static String tag="TAG-MainActivity";
     private DrawerLayout drawerLayout;
     private ImageView imageViewInfo;
+    @SuppressLint("StaticFieldLeak")
     private static ImageView imageViewPlay;
     private ImageView imageViewList;
     private ImageView imageViewUserIcon;
     private EditText editTextSearch;
-    private static DatabaseHelper databaseHelper;
+    //private static DatabaseHelper databaseHelper;
     private RecyclerView recyclerViewList;
-    private List<String> musicsPathsList=new ArrayList<>();
+    private final List<String> musicsPathsList=new ArrayList<>();
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private MediaPlayer mediaPlayer=new MediaPlayer();
@@ -49,15 +51,18 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout linearLayoutUserCollect;
     private TextView textViewUser;
     private TextView textViewExit;
+    @SuppressLint("StaticFieldLeak")
     private static TextView textViewBottomTitle;
+    @SuppressLint("StaticFieldLeak")
     private static TextView textViewBottomSinger;
+    @SuppressLint("StaticFieldLeak")
     private static ImageView imageViewBottomCover;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
+        //databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
         permission();
         initView();
         initListener();
@@ -70,7 +75,13 @@ public class MainActivity extends AppCompatActivity {
                     Manifest.permission.READ_MEDIA_IMAGES,Manifest.permission.READ_MEDIA_VIDEO},200);
         }else {
             Toast.makeText(this,"SD权限已被授予",Toast.LENGTH_SHORT).show();
-            databaseHelper.initSongsDB(this);
+            //databaseHelper.initSongsDB(this);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    DatabaseManager.getDatabaseManager().initDatabase();
+                }
+            }).start();
         }
     }
     @Override
@@ -102,39 +113,46 @@ public class MainActivity extends AppCompatActivity {
         textViewBottomTitle=(TextView)findViewById(R.id.tv_bottom_playing_song_title);
 
         //musicsPathsList=databaseHelper.getStoredMusicPath();
-        //recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
+        recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
         new Thread(new Runnable() {
             @Override
             public void run() {
+                List<String> tempList=DatabaseManager.getDatabaseManager().getMusicListAll();
+                musicsPathsList.addAll(tempList);
                 Message message=handler.obtainMessage();
-                Bundle bundle=new Bundle();
-                List<String> pathList=databaseHelper.getStoredMusicPath();
-                String allPathString=new String();
-                for(String item:pathList){
-                    allPathString=allPathString+";;;;;"+item;
-                }
-                bundle.putString("pathString",allPathString);
-                message.setData(bundle);
+//                Bundle bundle=new Bundle();
+//                List<String> pathList=databaseHelper.getStoredMusicPath();
+//                String allPathString=new String();
+//                for(String item:pathList){
+//                    allPathString=allPathString+";;;;;"+item;
+//                }
+//                bundle.putString("pathString",allPathString);
+//                message.setData(bundle);
+                message.what=1;
                 handler.sendMessage(message);
             }
-        });
-
-
+        }).start();
 
     }
-    private Handler handler=new Handler(Looper.getMainLooper()){
+    private final Handler handler=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            Bundle bundle=msg.getData();
-            String getPaths=bundle.getString("pathString");
-            String[] paths=getPaths.split(";;;;;");
-            for(String item:paths){
-                musicsPathsList.add(item);
+            int getInt=msg.what;
+            if(getInt==1){
+                recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
             }
-            recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
+//            Bundle bundle=msg.getData();
+//            String getPaths=bundle.getString("pathString");
+//            String[] paths=getPaths.split(";;;;;");
+//            for(String item:paths){
+//                musicsPathsList.add(item);
+//            }
+//            recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
         }
     };
+
+
     
 
     private void initListener(){
@@ -296,17 +314,23 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
     }
-    public static Handler handlerInfo=new Handler(Looper.myLooper()){
+    public static Handler handlerInfo=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             Bundle bundle=msg.getData();
             String path=bundle.getString("path");
-            Boolean isPlaying=bundle.getBoolean("isPlaying");
+            boolean isPlaying=bundle.getBoolean("isPlaying");
+            String title=DatabaseManager.getDatabaseManager().getTitle(path);
+            String singer=DatabaseManager.getDatabaseManager().getSinger(path);
+            Bitmap cover=DatabaseManager.getDatabaseManager().getCover(path);
+            textViewBottomTitle.setText(title);
+            textViewBottomSinger.setText(singer);
+            imageViewBottomCover.setImageBitmap(cover);
 
-            textViewBottomTitle.setText(databaseHelper.getTitle(path));
-            textViewBottomSinger.setText(databaseHelper.getSinger(path));
-            imageViewBottomCover.setImageBitmap(databaseHelper.getCover(path));
+//            textViewBottomTitle.setText(databaseHelper.getTitle(path));
+//            textViewBottomSinger.setText(databaseHelper.getSinger(path));
+//            imageViewBottomCover.setImageBitmap(databaseHelper.getCover(path));
 
             if(isPlaying){
                 imageViewPlay.setImageResource(R.drawable.playing_to_pause);
@@ -323,10 +347,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //传递用户输入
-                String toPlayPath=path;
                 Message message=handlerInfo.obtainMessage();
                 Bundle bundle=new Bundle();
-                bundle.putString("path",toPlayPath);
+                bundle.putString("path", path);
                 bundle.putBoolean("isPlaying",isPlaying);
                 if(isPlaying.equals(false)){
                     mediaPlayer.pause();

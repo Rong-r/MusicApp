@@ -62,14 +62,17 @@ public class ListActivity extends Activity {
         List<String> listToShow=new ArrayList<>();
         if(listName.equals("collected")){
             listToShow=databaseHelper.getCollectedMusicPath();
+            //listToShow.addAll(DatabaseManager.getDatabaseManager().getMusicListCollected());
             textViewListTitle.setText("我的收藏");
             imageViewListIcon.setImageResource(R.drawable.playing_loved);
         } else if (listName.equals("loved")) {
             listToShow=databaseHelper.getLovedMusicPath();
+            //listToShow.addAll(DatabaseManager.getDatabaseManager().getMusicListLoved());
             textViewListTitle.setText("我的喜爱");
             imageViewListIcon.setImageResource(R.drawable.playing_collected);
         }else {
             listToShow=databaseHelper.getStoredMusicPath();
+            //listToShow.addAll(DatabaseManager.getDatabaseManager().getMusicListAll());
             textViewListTitle.setText("全部歌曲");
         }
         return listToShow;
