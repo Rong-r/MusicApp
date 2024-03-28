@@ -1,5 +1,6 @@
 package com.example.mymusicapp;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 
 import java.util.List;
@@ -17,6 +18,9 @@ public class DatabaseManager {
 
     public static DatabaseManager getDatabaseManager(){
         return databaseManager;
+    }
+    public SQLiteDatabase getSQLiteDatabase(){
+        return databaseHelper.getWritableDatabase();
     }
     public void initDatabase(){
         DatabaseHelper.initSongsDB(MainApplication.getContext());

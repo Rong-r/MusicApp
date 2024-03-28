@@ -32,7 +32,7 @@ public class LoginActivity extends Activity {
     private EditText editTextPassword;
     private CheckBox checkBoxRememberPassword;
     private RadioButton radioButtonAgree;
-    private DatabaseHelper databaseHelper;
+    //private DatabaseHelper databaseHelper;
     private TextView textViewTourist;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,8 +92,9 @@ public class LoginActivity extends Activity {
                                 Message message=handler.obtainMessage();
                                 Bundle bundle=new Bundle();
                                 //核对登录信息
-                                databaseHelper=new DatabaseHelper(LoginActivity.this,"SongsApp.db",null,1);
-                                SQLiteDatabase db=databaseHelper.getWritableDatabase();
+                                //databaseHelper=new DatabaseHelper(LoginActivity.this,"SongsApp.db",null,1);
+                                //SQLiteDatabase db=databaseHelper.getWritableDatabase();
+                                SQLiteDatabase db=DatabaseManager.getDatabaseManager().getSQLiteDatabase();
                                 Boolean isTrue=new Boolean(false);
                                 String selection="userName = ?";
                                 String[] selectionArgs={userName};
