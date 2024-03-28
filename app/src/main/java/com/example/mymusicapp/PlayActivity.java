@@ -293,6 +293,7 @@ public class PlayActivity extends Activity {
                 editor.putString("nowPath",filePath);
                 editor.putInt("nowCurrentDuration",mediaPlayer.getCurrentPosition());
                 editor.putString("nowList",fromList);
+                editor.putString("fromActivity","PlayActivity");
                 if(mediaPlayer.isPlaying()){
                     editor.putBoolean("nowIsPlaying",true);
                 }else {

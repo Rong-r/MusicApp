@@ -216,11 +216,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if (mediaPlayer!=null){
             editor.putInt("nowCurrentDuration",mediaPlayer.getCurrentPosition());
-            if(mediaPlayer.isPlaying()){
-                editor.putBoolean("nowIsPlaying",true);
-            }else {
-                editor.putBoolean("nowIsPlaying",false);
-            }
+            editor.putBoolean("nowIsPlaying",false);
             editor.apply();
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -230,17 +226,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String nowPath=sharedPreferences.getString("nowPath","");
-        int nowCurrentDuration=sharedPreferences.getInt("nowCurrentDuration",0);
-        String nowList=sharedPreferences.getString("nowList","");
-        Boolean nowIsPlaying=sharedPreferences.getBoolean("nowIsPlaying",true);
-        if (!nowPath.isEmpty()){
-            setInfo(nowPath,nowIsPlaying);
-            setMediaPlayer(nowPath,nowCurrentDuration);
+        String fromActivity=sharedPreferences.getString("fromActivity","");
+        if(fromActivity.equals("PlayActivity")){
+            String nowPath=sharedPreferences.getString("nowPath","");
+            int nowCurrentDuration=sharedPreferences.getInt("nowCurrentDuration",0);
+            String nowList=sharedPreferences.getString("nowList","");
+            Boolean nowIsPlaying=sharedPreferences.getBoolean("nowIsPlaying",true);
+            if (!nowPath.isEmpty()){
+                setInfo(nowPath,nowIsPlaying);
+                setMediaPlayer(nowPath,nowCurrentDuration);
+            }
+            if(!nowList.isEmpty()){
+                imageViewList.setTag(nowList);
+            }
         }
-        if(!nowList.isEmpty()){
-            imageViewList.setTag(nowList);
-        }
+
     }
     private void setMediaPlayer(String path,int currentDuration){
         try {
