@@ -39,13 +39,15 @@ public class SearchActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            String searchContent=(String) msg.obj;
-            addHistory(searchContent);
-            if(canSearch(searchContent)){
-                Bundle bundle=new Bundle();
-                bundle.putString("searchContent",searchContent);
+            Bundle bundleFrom=msg.getData();
+            String searchContent=bundleFrom.getString("searchContent");
+            Boolean canSearch=bundleFrom.getBoolean("canSearch");
+
+            if(canSearch&&!searchContent.isEmpty()){
+                Bundle bundlePost=new Bundle();
+                bundlePost.putString("searchContent",searchContent);
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container_under_search, SearchResultFragment.class,bundle)
+                        .add(R.id.fragment_container_under_search, SearchResultFragment.class,bundlePost)
                         .addToBackStack("searchResult").commit();
             }else {
                 getSupportFragmentManager().beginTransaction()
@@ -77,14 +79,23 @@ public class SearchActivity extends AppCompatActivity {
                 // 点击搜索后，隐藏软键盘
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
+                String searchContent=editTextContent.getText().toString();
+                addHistory(searchContent);
                 //开启子线程
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         //传递用户输入
-                        String searchContent=editTextContent.getText().toString();
-                        Message message=new Message();
-                        message.obj=searchContent;
+                        Message message=handler.obtainMessage();
+                        Bundle bundle=new Bundle();
+                        if(canSearch(searchContent)){
+                            bundle.putString("searchContent",searchContent);
+                            bundle.putBoolean("canSearch",true);
+                        }else {
+                            bundle.putString("searchContent",null);
+                            bundle.putBoolean("canSearch",false);
+                        }
+                        message.setData(bundle);
                         handler.sendMessage(message);
                     }
                 }).start();
