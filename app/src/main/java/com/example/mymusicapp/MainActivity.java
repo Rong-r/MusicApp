@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout linearLayoutUserCollect;
     private TextView textViewUser;
     private TextView textViewExit;
-    private static DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
+    private static final DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     @SuppressLint("StaticFieldLeak")
     private static TextView textViewBottomTitle;
     @SuppressLint("StaticFieldLeak")
@@ -115,22 +115,14 @@ public class MainActivity extends AppCompatActivity {
                 List<String> tempList=databaseManager.getMusicListAll();
                 musicsPathsList.addAll(tempList);
                 Message message=handler.obtainMessage();
-                message.what=1;
+                Bundle bundle=new Bundle();
+                bundle.putString("TYPE","fromOnCreate");
+                message.setData(bundle);
                 handler.sendMessage(message);
             }
         }).start();
 
     }
-    private final Handler handler=new Handler(Looper.getMainLooper()){
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            int getInt=msg.what;
-            if(getInt==1){
-                recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
-            }
-        }
-    };
 
     private void initListener(){
 
@@ -296,25 +288,35 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
     }
-    public static Handler handlerInfo=new Handler(Looper.getMainLooper()){
+    public Handler handler=new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             Bundle bundle=msg.getData();
-            String path=bundle.getString("path");
-            boolean isPlaying=bundle.getBoolean("isPlaying");
-            String title=databaseManager.getTitle(path);
-            String singer=databaseManager.getSinger(path);
-            Bitmap cover=databaseManager.getCover(path);
-            textViewBottomTitle.setText(title);
-            textViewBottomSinger.setText(singer);
-            imageViewBottomCover.setImageBitmap(cover);
-            if(isPlaying){
-                imageViewPlay.setImageResource(R.drawable.playing_to_pause);
-                imageViewPlay.setTag("toPause");
-            }else {
-                imageViewPlay.setImageResource(R.drawable.playing_to_play);
-                imageViewPlay.setTag("toPlay");
+            String TYPE=bundle.getString("TYPE");
+            switch (TYPE){
+                case "fromOnCreate":
+                    recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
+                    break;
+                case "fromSatInfo":
+                    String path=bundle.getString("path");
+                    boolean isPlaying=bundle.getBoolean("isPlaying");
+                    String title=databaseManager.getTitle(path);
+                    String singer=databaseManager.getSinger(path);
+                    Bitmap cover=databaseManager.getCover(path);
+                    textViewBottomTitle.setText(title);
+                    textViewBottomSinger.setText(singer);
+                    imageViewBottomCover.setImageBitmap(cover);
+                    if(isPlaying){
+                        imageViewPlay.setImageResource(R.drawable.playing_to_pause);
+                        imageViewPlay.setTag("toPause");
+                    }else {
+                        imageViewPlay.setImageResource(R.drawable.playing_to_play);
+                        imageViewPlay.setTag("toPlay");
+                    }
+                    break;
+                default:
+                    break;
             }
         }
     };
@@ -324,8 +326,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 //传递用户输入
-                Message message=handlerInfo.obtainMessage();
+                Message message=handler.obtainMessage();
                 Bundle bundle=new Bundle();
+                bundle.putString("TYPE","fromSatInfo");
                 bundle.putString("path", path);
                 bundle.putBoolean("isPlaying",isPlaying);
                 if(isPlaying.equals(false)){
@@ -333,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //再将bundle封装到msg消息对象中
                 message.setData(bundle);
-                handlerInfo.sendMessage(message);
+                handler.sendMessage(message);
             }
         }).start();
     }

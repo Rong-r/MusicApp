@@ -145,4 +145,12 @@ public class SearchActivity extends AppCompatActivity {
                     .addToBackStack("searchHistory").commit();
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(handler!=null){
+            handler.removeCallbacksAndMessages(null);
+        }
+    }
 }

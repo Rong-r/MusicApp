@@ -47,95 +47,7 @@ public class PlayActivity extends Activity {
     private ObjectAnimator animator;
     private SharedPreferences sharedPreferences;
     private final DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
-    public static Handler handler=new Handler(Looper.getMainLooper()){
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            Bundle bundle=msg.getData();//获取从子线程发送过来的音乐播放进度
-            //获取当前进度currentPosition
-            int currentPosition=bundle.getInt("currentPosition");
-            //对进度条进行设置
-            seekBar.setProgress(currentPosition);
-            //歌曲当前播放时长
-            int minute=currentPosition/1000/60;
-            int second=currentPosition/1000%60;
-            String strMinute=null;
-            String strSecond=null;
-            if(minute<10){//如果歌曲的时间中的分钟小于10
-                strMinute="0"+minute;//在分钟的前面加一个0
-            }else{
-                strMinute=minute+" ";
-            }
-            if (second<10){//如果歌曲中的秒钟小于10
-                strSecond="0"+second;//在秒钟前面加一个0
-            }else{
-                strSecond=second+" ";
-            }
-            //显示当前歌曲已经播放的时间
-            textViewCurrentTime.setText(strMinute+":"+strSecond);
-        }
-    };
-    public static Handler handlerDuration=new Handler(Looper.getMainLooper()){
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            Bundle bundle=msg.getData();//获取从子线程发送过来的音乐播放进度
-            //获取总时长duration
-            int duration=bundle.getInt("duration");
-            //对进度条进行设置
-            seekBar.setMax(duration);
-            //歌曲是多少分钟多少秒钟
-            int minute=duration/1000/60;
-            int second=duration/1000%60;
-            String strMinute=null;
-            String strSecond=null;
-            if(minute<10){//如果歌曲的时间中的分钟小于10
-                strMinute="0"+minute;//在分钟的前面加一个0
-            }else{
-                strMinute=minute+"";
-            }
-            if (second<10){//如果歌曲中的秒钟小于10
-                strSecond="0"+second;//在秒钟前面加一个0
-            }else{
-                strSecond=second+"";
-            }
-            //这里就显示了歌曲总时长
-            textViewDuration.setText(strMinute+":"+strSecond);
-        }
-    };
-    public static Handler handlerInfo=new Handler(Looper.getMainLooper()){
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            Bundle bundle=msg.getData();
 
-            String nowUser=bundle.getString("nowUser");
-            String title=bundle.getString("title");
-            String singer=bundle.getString("singer");
-            int isLoved=bundle.getInt("isLoved");
-            int isCollected=bundle.getInt("isCollected");
-
-            textViewTitle.setText(title);
-            textViewSinger.setText(singer);
-
-            if(isLoved==1&&nowUser!=null){
-                imageViewLove.setImageResource(R.drawable.playing_loved);
-                imageViewLove.setTag("loved");
-            }else {
-                imageViewLove.setImageResource(R.drawable.playing_love);
-                imageViewLove.setTag("notLove");
-            }
-            if(isCollected==1&&nowUser!=null){
-                imageViewCollect.setImageResource(R.drawable.playing_collected);
-                imageViewCollect.setTag("collected");
-            }else {
-                imageViewCollect.setImageResource(R.drawable.playing_collect);
-                imageViewCollect.setTag("notCollect");
-            }
-        }
-    };
     private void setMediaPlayer(String path){
         try {
             if (mediaPlayer == null) {
@@ -331,6 +243,10 @@ public class PlayActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(mediaPlayer!=null){
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
         setInfo(filePath);
         setMediaPlayer(filePath);
     }
@@ -350,6 +266,7 @@ public class PlayActivity extends Activity {
                     //将音乐的总时长和播放进度封装至bundle中
                     Bundle bundle=new Bundle();
                     bundle.putInt("currentPosition",currentPosition);
+                    bundle.putString("TYPE","fromSetCurrentTime");
                     //再将bundle封装到msg消息对象中
                     msg.setData(bundle);
                     //最后将消息发送到主线程的消息队列
@@ -373,16 +290,17 @@ public class PlayActivity extends Activity {
                 int isLoved=databaseManager.isLoved(path);
                 int isCollected=databaseManager.isCollected(path);
                 String nowUser=sharedPreferences.getString("nowUser","");
-                Message message=handlerInfo.obtainMessage();
+                Message message=handler.obtainMessage();
                 Bundle bundle=new Bundle();
                 bundle.putString("nowUser",nowUser);
                 bundle.putString("title",title);
                 bundle.putString("singer",singer);
                 bundle.putInt("isLoved",isLoved);
                 bundle.putInt("isCollected",isCollected);
+                bundle.putString("TYPE","fromSetInfo");
                 //再将bundle封装到msg消息对象中
                 message.setData(bundle);
-                handlerInfo.sendMessage(message);
+                handler.sendMessage(message);
             }
         }).start();
     }
@@ -393,15 +311,110 @@ public class PlayActivity extends Activity {
             public void run() {
                 if (mediaPlayer==null) return;
                 int duration=mediaPlayer.getDuration();//获取歌曲总时长
-                Message msg= handlerDuration.obtainMessage();//创建消息对象
+                Message msg= handler.obtainMessage();//创建消息对象
                 //将音乐的总时长封装至bundle中
                 Bundle bundle=new Bundle();
                 bundle.putInt("duration",duration);
+                bundle.putString("TYPE","fromSetDuration");
                 //再将bundle封装到msg消息对象中
                 msg.setData(bundle);
                 //最后将消息发送到主线程的消息队列
-                handlerDuration.sendMessage(msg);
+                handler.sendMessage(msg);
             }
         }).start();
+    }
+    public static Handler handler=new Handler(Looper.getMainLooper()){
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            Bundle bundle=msg.getData();//获取从子线程发送过来的音乐播放进度
+            String TYPE=bundle.getString("TYPE");
+            int minute,second;
+            String strMinute=null;
+            String strSecond=null;
+            switch (TYPE){
+                case "fromSetInfo":
+                    String nowUser=bundle.getString("nowUser");
+                    String title=bundle.getString("title");
+                    String singer=bundle.getString("singer");
+                    int isLoved=bundle.getInt("isLoved");
+                    int isCollected=bundle.getInt("isCollected");
+
+                    textViewTitle.setText(title);
+                    textViewSinger.setText(singer);
+
+                    if(isLoved==1&&nowUser!=null){
+                        imageViewLove.setImageResource(R.drawable.playing_loved);
+                        imageViewLove.setTag("loved");
+                    }else {
+                        imageViewLove.setImageResource(R.drawable.playing_love);
+                        imageViewLove.setTag("notLove");
+                    }
+                    if(isCollected==1&&nowUser!=null){
+                        imageViewCollect.setImageResource(R.drawable.playing_collected);
+                        imageViewCollect.setTag("collected");
+                    }else {
+                        imageViewCollect.setImageResource(R.drawable.playing_collect);
+                        imageViewCollect.setTag("notCollect");
+                    }
+                    break;
+                case "fromSetDuration":
+                    //获取总时长duration
+                    int duration=bundle.getInt("duration");
+                    //对进度条进行设置
+                    seekBar.setMax(duration);
+                    //歌曲是多少分钟多少秒钟
+                    minute=duration/1000/60;
+                    second=duration/1000%60;
+                    if(minute<10){//如果歌曲的时间中的分钟小于10
+                        strMinute="0"+minute;//在分钟的前面加一个0
+                    }else{
+                        strMinute=minute+"";
+                    }
+                    if (second<10){//如果歌曲中的秒钟小于10
+                        strSecond="0"+second;//在秒钟前面加一个0
+                    }else{
+                        strSecond=second+"";
+                    }
+                    //这里就显示了歌曲总时长
+                    textViewDuration.setText(strMinute+":"+strSecond);
+                    break;
+                case "fromSetCurrentTime":
+                    //获取当前进度currentPosition
+                    int currentPosition=bundle.getInt("currentPosition");
+                    //对进度条进行设置
+                    seekBar.setProgress(currentPosition);
+                    //歌曲当前播放时长
+                    minute=currentPosition/1000/60;
+                    second=currentPosition/1000%60;
+                    if(minute<10){//如果歌曲的时间中的分钟小于10
+                        strMinute="0"+minute;//在分钟的前面加一个0
+                    }else{
+                        strMinute=minute+" ";
+                    }
+                    if (second<10){//如果歌曲中的秒钟小于10
+                        strSecond="0"+second;//在秒钟前面加一个0
+                    }else{
+                        strSecond=second+" ";
+                    }
+                    //显示当前歌曲已经播放的时间
+                    textViewCurrentTime.setText(strMinute+":"+strSecond);
+                    break;
+            }
+
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mediaPlayer!=null){
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        if(handler!=null){
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 }
