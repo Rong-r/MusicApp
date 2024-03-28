@@ -24,40 +24,30 @@ public class ListActivity extends Activity {
     private TextView textViewListTitle;
     private ImageView imageViewBack;
     private ImageView imageViewListIcon;
-    private Intent intent;
     private List<String> musicList;
     private DatabaseHelper databaseHelper;
-    private Handler handler=new Handler(Looper.myLooper()){
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            String listName=(String) msg.obj;
-            musicList=getList(listName);
-            recyclerView.setAdapter(new HomeAdapter(ListActivity.this,musicList,listName));
-
-            //Toast.makeText(SearchActivity.this,"收到消息",Toast.LENGTH_SHORT).show();
-        }
-    };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
         databaseHelper=new DatabaseHelper(this,"SongsApp.db",null,1);
-        intent=getIntent();
-        String listName=intent.getStringExtra("checkList");
+        Intent intent = getIntent();
+        String listName= intent.getStringExtra("checkList");
+        if(listName.isEmpty()){
+            listName="all";
+        }
         Log.d(tag,"getListName: "+listName);
         recyclerView=(RecyclerView) findViewById(R.id.recyclerView_list);
         imageViewBack=(ImageView) findViewById(R.id.iv_search_back);
         imageViewListIcon=(ImageView) findViewById(R.id.iv_list_icon);
         textViewListTitle=(TextView)findViewById(R.id.tv_list_title);
         //开启子线程
+        String finalListName = listName;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //传递用户输入
-                Message message=new Message();
-                message.obj=listName;
-                handler.sendMessage(message);
+                musicList=getList(finalListName);
+                recyclerView.setAdapter(new HomeAdapter(ListActivity.this,musicList, finalListName));
             }
         }).start();
 
