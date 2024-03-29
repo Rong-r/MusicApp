@@ -163,10 +163,12 @@ public class PlayActivity extends Activity {
                     onResume();
                 }
             }
+
             //滑动条开始滑动时调用
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
+
             //滑动条停止滑动时调用
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
@@ -188,8 +190,7 @@ public class PlayActivity extends Activity {
                     databaseManager.setLove(filePath);
                     imageViewLove.setImageResource(R.drawable.playing_love);
                     imageViewLove.setTag("notLove");
-                }
-                else {
+                } else {
                     Toast.makeText(PlayActivity.this,"当前为游客模式，请先登录",Toast.LENGTH_SHORT).show();
                 }
             }
@@ -268,6 +269,7 @@ public class PlayActivity extends Activity {
             timer.schedule(task,5,1000);
         }
     }
+
     private void setInfo(String path){
         //开启子线程
         new Thread(new Runnable() {
@@ -295,6 +297,7 @@ public class PlayActivity extends Activity {
             }
         }).start();
     }
+
     private void setDuration(){
         //开启子线程
         new Thread(new Runnable() {
@@ -314,6 +317,7 @@ public class PlayActivity extends Activity {
             }
         }).start();
     }
+
     public static Handler handler=new Handler(Looper.getMainLooper()){
         @SuppressLint("SetTextI18n")
         @Override
@@ -402,12 +406,15 @@ public class PlayActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mediaPlayer!=null){
+        if (timer != null) {
+            timer.cancel();
+        }
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+        if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
-        }
-        if(handler!=null){
-            handler.removeCallbacksAndMessages(null);
         }
     }
 }

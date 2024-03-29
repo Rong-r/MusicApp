@@ -15,6 +15,5 @@ public class SearchHistoryViewHolder extends RecyclerView.ViewHolder {
         textViewTitle=itemView.findViewById(R.id.tv_search_history_song_title);
         imageViewDelete=itemView.findViewById(R.id.iv_search_history_delete);
 
-
     }
 }

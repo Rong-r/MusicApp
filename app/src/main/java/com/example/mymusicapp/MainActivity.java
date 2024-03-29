@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.os.Handler;
@@ -62,34 +63,81 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         permission();
-        initView();
-        initListener();
     }
+
     private void permission(){
-        if(checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO)!= PackageManager.PERMISSION_GRANTED||
-                checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES)!= PackageManager.PERMISSION_GRANTED||
-                checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO)!= PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new String[]{Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_IMAGES,Manifest.permission.READ_MEDIA_VIDEO},200);
-        }else {
-            Toast.makeText(this,"SD权限已被授予",Toast.LENGTH_SHORT).show();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    databaseManager.initDatabase();
-                }
-            }).start();
+        if (Build.VERSION.SDK_INT > 31) {
+            if (checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED ||
+                    checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
+            } else {
+                Toast.makeText(this, "SD权限已被授予", Toast.LENGTH_SHORT).show();
+                initAndQuery();
+            }
+        } else {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 200);
+            } else {
+                Toast.makeText(this, "SD权限已被授予", Toast.LENGTH_SHORT).show();
+                initAndQuery();
+            }
         }
     }
+    public void initAndQuery(){
+        initView();
+        initListener();
+        loadFromDB();
+        asyncQuery();
+    }
+
+    private void loadFromDB() {
+        // 异步加载数据库中的数据
+        new Thread(() -> {
+            DatabaseManager.getDatabaseManager().getMusicListAll();
+            // 加载完成后调用updateUI()方法更新UI
+            updateUI();
+        }).start();
+    }
+
+    private void asyncQuery() {
+        new Thread(() -> {
+            databaseManager.initDatabase();
+            // TODO: 2024/3/29 这里最好提示+增量更新
+            runOnUiThread(this::updateUI);
+        }).start();
+    }
+
+    private void updateUI() {
+        List<String> tempList = databaseManager.getMusicListAll();
+        musicsPathsList.addAll(tempList);
+        Message message = handler.obtainMessage();
+        Bundle bundle = new Bundle();
+        bundle.putString("TYPE", "fromOnCreate");
+        message.setData(bundle);
+        handler.sendMessage(message);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode==200){
-            if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this,"SD权限申请成功",Toast.LENGTH_SHORT).show();
+            if(grantResults.length == 4){
+                if(grantResults[0]==PackageManager.PERMISSION_GRANTED || grantResults[grantResults.length-1] == PackageManager.PERMISSION_GRANTED){
+                    Toast.makeText(this,"SD权限申请成功",Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(this,"SD权限申请被拒绝",Toast.LENGTH_SHORT).show();
+                }
             }else {
-                Toast.makeText(this,"SD权限申请被拒绝",Toast.LENGTH_SHORT).show();
+                if(grantResults[0]==PackageManager.PERMISSION_GRANTED ){
+                    Toast.makeText(this,"SD权限申请成功",Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(this,"SD权限申请被拒绝",Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -109,24 +157,9 @@ public class MainActivity extends AppCompatActivity {
         textViewExit=(TextView)findViewById(R.id.tv_exit_login);
         textViewBottomSinger=(TextView)findViewById(R.id.tv_bottom_playing_singer);
         textViewBottomTitle=(TextView)findViewById(R.id.tv_bottom_playing_song_title);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<String> tempList=databaseManager.getMusicListAll();
-                musicsPathsList.addAll(tempList);
-                Message message=handler.obtainMessage();
-                Bundle bundle=new Bundle();
-                bundle.putString("TYPE","fromOnCreate");
-                message.setData(bundle);
-                handler.sendMessage(message);
-            }
-        }).start();
-
     }
 
     private void initListener(){
-
-        sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
         editor=sharedPreferences.edit();
         String userName=sharedPreferences.getString("nowUser","");
         if(userName.isEmpty()){
@@ -248,8 +281,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        mediaPlayer.stop();
-        mediaPlayer.release();
+//        mediaPlayer.stop();
+//        mediaPlayer.release();
         String fromActivity = sharedPreferences.getString("fromActivity", "");
         Log.d("TAG", "get fromActivity:" + fromActivity);
         if (fromActivity.equals("PlayActivity")) {
@@ -321,23 +354,16 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     private void setInfo(String path,Boolean isPlaying){
-        //开启子线程
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //传递用户输入
-                Message message=handler.obtainMessage();
-                Bundle bundle=new Bundle();
-                bundle.putString("TYPE","fromSetInfo");
-                bundle.putString("path", path);
-                bundle.putBoolean("isPlaying",isPlaying);
-                if(isPlaying.equals(false)){
-                    mediaPlayer.pause();
-                }
-                //再将bundle封装到msg消息对象中
-                message.setData(bundle);
-                handler.sendMessage(message);
-            }
-        }).start();
+        Message message=handler.obtainMessage();
+        Bundle bundle=new Bundle();
+        bundle.putString("TYPE","fromSetInfo");
+        bundle.putString("path", path);
+        bundle.putBoolean("isPlaying",isPlaying);
+        if(isPlaying.equals(false)){
+            mediaPlayer.pause();
+        }
+        //再将bundle封装到msg消息对象中
+        message.setData(bundle);
+        handler.sendMessage(message);
     }
 }

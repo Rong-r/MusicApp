@@ -3,6 +3,7 @@ package com.example.mymusicapp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +35,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeViewHolder> {
         String musicPath=MusicsPathsListInDB.get(position);
         holder.textViewTitle.setText(databaseManager.getTitle(musicPath));
         holder.textViewSinger.setText(databaseManager.getSinger(musicPath));
-        holder.imageViewCover.setImageBitmap(databaseManager.getCover(musicPath));
+        Bitmap bitmap = databaseManager.getCover(musicPath);
+        if(bitmap != null){
+            holder.imageViewCover.setImageBitmap(bitmap);
+        }
         holder.textViewTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

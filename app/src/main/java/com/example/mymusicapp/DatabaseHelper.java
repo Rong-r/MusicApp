@@ -188,6 +188,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         MediaMetadataRetriever mmr=new MediaMetadataRetriever();
         mmr.setDataSource(filePath);
         byte[] cover = mmr.getEmbeddedPicture();
+        if(cover == null){
+            return null;
+        }
         return BitmapFactory.decodeByteArray(cover, 0, cover.length);
     }
     public void setLoved(String filePath){
