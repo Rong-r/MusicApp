@@ -14,16 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeViewHolder> {
-    private static String tag="TAG-HomeAdapter";
-    private Context mContext;
-    private List<String> MusicsPathsListInDB;
-    private String mListName;
+    private static final String tag="TAG-HomeAdapter";
+    private final List<String> MusicsPathsListInDB;
+    private final String mListName;
+    private final DatabaseManager databaseManager=DatabaseManager.getDatabaseManager();
     public HomeAdapter(Context context, List<String> musicPaths,String listName){
-        mContext=context;
         MusicsPathsListInDB=musicPaths;
         mListName=listName;
     }
-    DatabaseHelper helper = new DatabaseHelper(mContext,"SongsApp.db",null,1);
     @NonNull
     @Override
     public HomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -34,9 +32,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull HomeViewHolder holder, @SuppressLint("RecyclerView") int position) {
         String musicPath=MusicsPathsListInDB.get(position);
-        holder.textViewTitle.setText(helper.getTitle(musicPath));
-        holder.textViewSinger.setText(helper.getSinger(musicPath));
-        holder.imageViewCover.setImageBitmap(helper.getCover(musicPath));
+        holder.textViewTitle.setText(databaseManager.getTitle(musicPath));
+        holder.textViewSinger.setText(databaseManager.getSinger(musicPath));
+        holder.imageViewCover.setImageBitmap(databaseManager.getCover(musicPath));
         holder.textViewTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

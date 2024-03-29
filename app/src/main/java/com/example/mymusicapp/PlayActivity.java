@@ -75,7 +75,6 @@ public class PlayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playing);
         sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
         Intent intentCome = getIntent();
         imageViewPlaying=(ImageView) findViewById(R.id.iv_playing);
         ImageView imageViewLast = (ImageView) findViewById(R.id.iv_playing_last);
@@ -183,12 +182,10 @@ public class PlayActivity extends Activity {
                 String nowUser=sharedPreferences.getString("nowUser","");
                 if(imageViewLove.getTag().equals("notLove")&&!nowUser.isEmpty()){
                     databaseManager.setLoved(filePath);
-                    //databaseHelper.setLoved(filePath);
                     imageViewLove.setImageResource(R.drawable.playing_loved);
                     imageViewLove.setTag("loved");
                 }else if(!nowUser.isEmpty()){
                     databaseManager.setLove(filePath);
-                    //databaseHelper.setLove(filePath);
                     imageViewLove.setImageResource(R.drawable.playing_love);
                     imageViewLove.setTag("notLove");
                 }
@@ -202,12 +199,10 @@ public class PlayActivity extends Activity {
             public void onClick(View view) {
                 if(imageViewCollect.getTag().equals("notCollect")){
                     databaseManager.setCollected(filePath);
-                    //databaseHelper.setCollected(filePath);
                     imageViewCollect.setImageResource(R.drawable.playing_collected);
                     imageViewCollect.setTag("collected");
                 }else {
                     databaseManager.setCollect(filePath);
-                    //databaseHelper.setCollect(filePath);
                     imageViewCollect.setImageResource(R.drawable.playing_collect);
                     imageViewCollect.setTag("notCollect");
                 }
@@ -243,10 +238,6 @@ public class PlayActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(mediaPlayer!=null){
-            mediaPlayer.stop();
-            mediaPlayer.release();
-        }
         setInfo(filePath);
         setMediaPlayer(filePath);
     }
@@ -400,6 +391,8 @@ public class PlayActivity extends Activity {
                     }
                     //显示当前歌曲已经播放的时间
                     textViewCurrentTime.setText(strMinute+":"+strSecond);
+                    break;
+                default:
                     break;
             }
 
