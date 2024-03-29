@@ -57,11 +57,11 @@ public class ListActivity extends Activity {
         if(listName.equals("collected")){
             listToShow.addAll(databaseManager.getMusicListCollected());
             textViewListTitle.setText("我的收藏");
-            imageViewListIcon.setImageResource(R.drawable.playing_loved);
+            imageViewListIcon.setImageResource(R.drawable.playing_collected);
         } else if (listName.equals("loved")) {
             listToShow.addAll(databaseManager.getMusicListLoved());
             textViewListTitle.setText("我的喜爱");
-            imageViewListIcon.setImageResource(R.drawable.playing_collected);
+            imageViewListIcon.setImageResource(R.drawable.playing_loved);
         }else {
             listToShow.addAll(databaseManager.getMusicListAll());
             textViewListTitle.setText("全部歌曲");

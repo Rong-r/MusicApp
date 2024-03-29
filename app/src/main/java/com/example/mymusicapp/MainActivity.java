@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
                 case "fromOnCreate":
                     recyclerViewList.setAdapter(new HomeAdapter(MainActivity.this,musicsPathsList,"all"));
                     break;
-                case "fromSatInfo":
+                case "fromSetInfo":
                     String path=bundle.getString("path");
                     boolean isPlaying=bundle.getBoolean("isPlaying");
                     String title=databaseManager.getTitle(path);
@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
                 //传递用户输入
                 Message message=handler.obtainMessage();
                 Bundle bundle=new Bundle();
-                bundle.putString("TYPE","fromSatInfo");
+                bundle.putString("TYPE","fromSetInfo");
                 bundle.putString("path", path);
                 bundle.putBoolean("isPlaying",isPlaying);
                 if(isPlaying.equals(false)){
